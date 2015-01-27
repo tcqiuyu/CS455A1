@@ -1,17 +1,17 @@
 package cs455.overlay.wireformats;
 
-public class RegistrySendNodeManifest implements Event {
-
-	@Override
-	public int getType() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
+public class WireFormatWidget implements Event {
 
 	@Override
 	public byte[] getBytes() {
 		// TODO Auto-generated method stub
 		return null;
+	} 
+
+	@Override
+	public int getType() {
+		// TODO Auto-generated method stub
+		return 0;
 	}
 
 }
