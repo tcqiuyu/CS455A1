@@ -1,5 +1,29 @@
 package cs455.overlay.wireformats;
 
-public interface Protocol {
-
+public enum Protocol {
+		
+		OVERLAY_NODE_SENDS_REGISTRATION(2),
+		OVERLAY_NODE_SENDS_DEREGISTRATION(3),
+		REGISTRY_REPORTS_REGISTRATION_STATUS(4),
+		
+		
+		REGISTRY_SENDS_NODE_MANIFEST(5),
+		NODE_REPORTS_OVERLAY_SETUP_STATUS(6),
+		
+		REGISTRY_REQUESTS_TAST_INITIATE(7),
+		OVERLAY_NODE_SENDS_DATA(8),
+		OVERLAY_NODE_REPORTS_TASK_FINISHED(9),
+		
+		REGISTRY_REQUESTS_TRAFFIC_SUMMARY(10),
+		OVERLAY_NODE_REPORTS_TRAFFIC_SUMMARY(11);
+		
+		private int id;
+		
+		Protocol(int i){
+			this.id = i;
+		}
+		
+		public int getProtocolID(){
+			return id;
+		}
 }

@@ -13,8 +13,8 @@ public class EventFactory {
 		return instance;
 	}
 
-	public static Event createEvent(MessageType mType) {
-		switch (mType) {
+	public static Event createEvent(Protocol protocol) {
+		switch (protocol) {
 		case NODE_REPORTS_OVERLAY_SETUP_STATUS:
 			return new NodeReportsOverlaySetupStatus();
 		case OVERLAY_NODE_REPORTS_TASK_FINISHED:

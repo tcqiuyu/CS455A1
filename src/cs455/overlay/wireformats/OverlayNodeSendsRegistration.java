@@ -2,6 +2,7 @@ package cs455.overlay.wireformats;
 
 public class OverlayNodeSendsRegistration implements Event{
 
+	
 	@Override
 	public int getType() {
 		// TODO Auto-generated method stub
