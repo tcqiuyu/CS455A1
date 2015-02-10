@@ -4,7 +4,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 
-public class TCPSender extends TCPConnection {
+public class TCPSender{
 
 	private Socket socket;
 	private DataOutputStream dout;

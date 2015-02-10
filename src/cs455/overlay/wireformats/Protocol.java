@@ -3,9 +3,8 @@ package cs455.overlay.wireformats;
 public enum Protocol {
 		
 		OVERLAY_NODE_SENDS_REGISTRATION(2),
-		OVERLAY_NODE_SENDS_DEREGISTRATION(3),
-		REGISTRY_REPORTS_REGISTRATION_STATUS(4),
-		
+		REGISTRY_REPORTS_REGISTRATION_STATUS(3),
+		OVERLAY_NODE_SENDS_DEREGISTRATION(4),
 		
 		REGISTRY_SENDS_NODE_MANIFEST(5),
 		NODE_REPORTS_OVERLAY_SETUP_STATUS(6),
@@ -21,6 +20,7 @@ public enum Protocol {
 		
 		Protocol(int i){
 			this.id = i;
+			
 		}
 		
 		public int getProtocolID(){

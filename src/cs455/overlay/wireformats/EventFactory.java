@@ -25,6 +25,8 @@ public class EventFactory {
 			return new OverlayNodeSendsData();
 		case OVERLAY_NODE_SENDS_REGISTRATION:
 			return new OverlayNodeSendsRegistration();
+		case OVERLAY_NODE_SENDS_DEREGISTRATION:
+			return new OverlayNodeSendsDeregistration();
 		case REGISTRY_REPORTS_REGISTRATION_STATUS:
 			return new RegistryReportsRegistrationStatus();
 		case REGISTRY_REQUESTS_TAST_INITIATE:
