@@ -20,7 +20,7 @@ public enum Protocol {
 		
 		Protocol(int i){
 			this.id = i;
-			
+			i++;
 		}
 		
 		public int getProtocolID(){
