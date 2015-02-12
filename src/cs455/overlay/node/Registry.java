@@ -4,7 +4,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.io.Reader;
 import java.io.Writer;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -27,20 +26,14 @@ public class Registry implements Node, Runnable {
 	private void handleSocket() throws IOException {
 		BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 		String temp;
-		int index;
 		while ((temp = reader.readLine()) != null) {
 
-			if((index = temp.indexOf("eof")) != -1){
+			if(temp.indexOf("eof") != -1){
 				break;
 			} else{
 				System.out.println(temp);
 			}
 		}
-		  Writer writer = new OutputStreamWriter(socket.getOutputStream());
-	         writer.write("Hello Client.\n");
-	         writer.write("eof\n");
-	         writer.flush();
-	         writer.close();
 	         reader.close();
 	         socket.close();
 		
@@ -77,23 +70,23 @@ public class Registry implements Node, Runnable {
 
 	}
 
-	public void printusg() {
+	private void printHelp() {
 		// TODO
 	}
 
-	public void listMessagingNode() {
+	private void listMessagingNode() {
 		// TODO
 	}
 
-	public void setupOverlay(int overlayNum) {
+	private void setupOverlay(int overlayNum) {
 		// TODO
 	}
 
-	public void listRoutingTables() {
+	private void listRoutingTables() {
 		// TODO
 	}
 
-	public void start(int messageNum) {
+	private void start(int messageNum) {
 		// TODO
 	}
 

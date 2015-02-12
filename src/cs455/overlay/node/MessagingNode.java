@@ -12,6 +12,7 @@ import cs455.overlay.wireformats.Event;
 
 public class MessagingNode implements Node{
 
+	
 	@Override
 	public void onEvent(Event e) {
 		// TODO Auto-generated method stub
@@ -19,7 +20,7 @@ public class MessagingNode implements Node{
 	}
 
 	public static void main(String[] args) throws InterruptedException{
-		String host = "127.0.0.1";
+		String host = "localhost";
 		int port = 8899;
 		
 		try {
