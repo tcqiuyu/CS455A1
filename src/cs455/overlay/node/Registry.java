@@ -81,14 +81,14 @@ public class Registry implements Node{
 	}
 
 	private void start() throws IOException {
-		// TODO Auto-generated method stub
-		
+		tcpServer = new TCPServerThread(this, port);
 		commandParser = new InteractiveCommandParser(this);
-		
+		tcpServer.start();
 	}
+
 	private void handleCommand(String command) {
-		// TODO Auto-generated method stub
-		
-	}
+
+    }
+
 
 }

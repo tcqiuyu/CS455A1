@@ -50,6 +50,8 @@ public class RegistryReportsDeregistrationStatus implements Event {
 	@Override
 	public byte[] getBytes() throws IOException {
 		byte[] marshalledBytes = null;
+
+
 		ByteArrayOutputStream baOutputStream = new ByteArrayOutputStream();
 		DataOutputStream dout = new DataOutputStream(new BufferedOutputStream(baOutputStream));
 		

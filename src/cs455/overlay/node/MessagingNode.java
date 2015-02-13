@@ -16,8 +16,8 @@ public class MessagingNode implements Node{
 	@Override
 	public void onEvent(Event e) {
 		// TODO Auto-generated method stub
-		
-	}
+
+    }
 
 	public static void main(String[] args) throws InterruptedException{
 		String host = "localhost";
