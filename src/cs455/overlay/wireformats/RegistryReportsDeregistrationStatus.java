@@ -54,6 +54,7 @@ public class RegistryReportsDeregistrationStatus implements Event {
 		DataOutputStream dout = new DataOutputStream(new BufferedOutputStream(baOutputStream));
 		
 		dout.writeInt(type);
+		dout.writeInt(status);
 		dout.writeInt(infoLength);
 		byte[] infoBytes = info.getBytes();
 		dout.write(infoBytes);

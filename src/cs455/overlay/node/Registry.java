@@ -7,36 +7,31 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Scanner;
 
+import cs455.overlay.transport.TCPServerThread;
+import cs455.overlay.util.InteractiveCommandParser;
 import cs455.overlay.wireformats.Event;
 
-public class Registry implements Node, Runnable {
+public class Registry implements Node{
 
-	Socket socket;
+	private Socket socket;
+
+	private TCPServerThread tcpServer;
+	private InteractiveCommandParser commandParser;
+
+	private int port;
 
 	public Registry() {
 		// TODO Auto-generated constructor stub
+	}
 
+	public Registry(int port) {
+		this.port = port;
 	}
 
 	private void setSocket(Socket socket) {
 		this.socket = socket;
-	}
-
-	private void handleSocket() throws IOException {
-		BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-		String temp;
-		while ((temp = reader.readLine()) != null) {
-
-			if(temp.indexOf("eof") != -1){
-				break;
-			} else{
-				System.out.println(temp);
-			}
-		}
-	         reader.close();
-	         socket.close();
-		
 	}
 
 	@Override
@@ -45,49 +40,55 @@ public class Registry implements Node, Runnable {
 
 	}
 
-	@Override
-	public void run() {
-		// TODO Auto-generated method stub
+	public static void main(String args[]) {
+
+		if (args.length != 1) {
+			System.out.println("Please input port number!");
+			return;
+		}
+
+		// get port number from command line
+		int port;
 		try {
-			handleSocket();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-
-	public static void main(String args[]) throws IOException {
-		int port = 8899; 
-
-		ServerSocket server = new ServerSocket(port);
-		while (true) {
-			Socket socket = server.accept();
-			Registry reg = new Registry();
-			reg.setSocket(socket);
-			new Thread(reg).start();
-			
+			port = Integer.parseInt(args[0]);
+			if (port <= 1024 || port >= 65536) {
+				System.out
+						.println("Port number out of range, please use port between 1024 and 65536!");
+				return;
+			}
+		} catch (NumberFormatException nfe) {
+			System.out.println("Invalid port number!");
+			return;
 		}
 
+		//setup registry
+		Registry registry = null;
+		try {
+			registry = new Registry(port);
+			registry.start();
+			System.out.println("Registry is up and listening on port " + port);
+		} catch (IOException ioe) {
+			System.out.println("Registry failed to start: " + ioe.getMessage());
+		}
+		
+		//get command line input
+		Scanner scanner = new Scanner(System.in);
+		while(scanner.hasNextLine()){
+			String command = scanner.nextLine();
+			registry.handleCommand(command);
+		}
+		
 	}
 
-	private void printHelp() {
-		// TODO
+	private void start() throws IOException {
+		// TODO Auto-generated method stub
+		
+		commandParser = new InteractiveCommandParser(this);
+		
 	}
-
-	private void listMessagingNode() {
-		// TODO
-	}
-
-	private void setupOverlay(int overlayNum) {
-		// TODO
-	}
-
-	private void listRoutingTables() {
-		// TODO
-	}
-
-	private void start(int messageNum) {
-		// TODO
+	private void handleCommand(String command) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }
