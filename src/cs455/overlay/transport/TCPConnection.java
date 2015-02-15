@@ -9,12 +9,21 @@ public class TCPConnection {
 
 	TCPReceiverThread receiver;
 	TCPSender sender;
-	
+	private Socket socket;
 	public TCPConnection(Node node, Socket socket) throws IOException{
 		
 		this.receiver = new TCPReceiverThread(node, socket);
 		this.sender = new TCPSender(socket);
-		
+		this.socket = socket;
+        receiver.start();
 	}
-	
+
+    public void sendData(byte[] data) throws IOException {
+        sender.sendData(data);
+    }
+
+    public Socket getSocket(){
+        return socket;
+    }
 }
+

@@ -38,7 +38,7 @@ public class OverlayNodeSendsRegistration implements Event, Protocol {
 			din.readFully(ipBytes);
 			ip = new String(ipBytes);
 		} else {
-			System.err.println("Message type does not match!");
+			System.out.println("Message type does not match!");
 		}
 
 		baInputStream.close();
