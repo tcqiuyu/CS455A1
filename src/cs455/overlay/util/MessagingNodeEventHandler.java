@@ -16,7 +16,6 @@ public class MessagingNodeEventHandler {
 
 
     public void handleRegReports(Event event) {
-
     }
 
     public void handleDeregReports(Event event) {

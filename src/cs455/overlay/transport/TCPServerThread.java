@@ -42,6 +42,7 @@ public class TCPServerThread extends Thread {
                 TCPConnection tcpConnection = new TCPConnection(node, socket);
             } catch (IOException ioe) {
                 ioe.printStackTrace();
+                continue;
             }
 
         }

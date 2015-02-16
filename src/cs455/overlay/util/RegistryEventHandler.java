@@ -29,7 +29,7 @@ public class RegistryEventHandler {
         OverlayNode overlayNode = new OverlayNode(srcIP, srcPort);
 
         int nodeID = registry.getNextID();
-        System.out.println("Allocate ID " + nodeID + " to incoming messaging node");
+//        System.out.println("Allocate ID " + nodeID + " to incoming messaging node");
         int regResult = registry.registerNode(nodeID, overlayNode);
 
         String info;
@@ -42,12 +42,15 @@ public class RegistryEventHandler {
             info = "Registration failed. The node already exists in overlay.";
             infoLength = info.length();
         }
+
+
         RegistryReportsRegistrationStatus regReport = new RegistryReportsRegistrationStatus(regResult, infoLength, info);
-
+        System.out.println("Getting connection from incoming node..." + "ip: " + srcIP + ", port: " + srcPort);
         TCPConnection connection = ConnectionFactory.getInstance().getConnection(srcIP, srcPort, registry);
-
+        System.out.println("Sending registration report...");
         try {
             connection.sendData(regReport.getBytes());
+            System.out.println("Send registration report to messaging node");
         } catch (IOException ioe) {
             registry.deRegisterNode(overlayNode.getHost(), overlayNode.getPort(), overlayNode.getNodeID());
             System.out.println("Failed to send registration report: " + ioe.getMessage());

@@ -30,12 +30,14 @@ public class TCPReceiverThread extends Thread {
                 byte[] data = new byte[dataLength];
                 din.readFully(data, 0, dataLength);
                 Event event = EventFactory.getInstance().getEvent(data);
-                System.out.println("Receive message from port: " + socket.getPort());
                 node.onEvent(event);
             } catch (SocketException se) {
+                //TODO: degregister node if disconnect...
                 System.out.println(se.getMessage());
+                break;
             } catch (IOException ioe) {
                 System.out.println(ioe.getMessage());
+                break;
             }
 
         }

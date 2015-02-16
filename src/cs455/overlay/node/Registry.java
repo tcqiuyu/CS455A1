@@ -78,12 +78,20 @@ public class Registry implements Node {
             case Protocol.OVERLAY_NODE_SENDS_REGISTRATION:
                 eventHandler.handleRegRequest(e);
                 break;
-            case Protocol.REGISTRY_REPORTS_DEREGISTRATION_STATUS:
+            case Protocol.OVERLAY_NODE_SENDS_DEREGISTRATION:
                 eventHandler.handleDeregRequest(e);
                 break;
+            case Protocol.NODE_REPORTS_OVERLAY_SETUP_STATUS:
+                eventHandler.handleSetupStatusReports(e);
+                break;
+            case Protocol.OVERLAY_NODE_REPORTS_TRAFFIC_SUMMARY:
+                eventHandler.handleTrafficSummaryReports(e);
+                break;
+            case Protocol.OVERLAY_NODE_REPORTS_TASK_FINISHED:
+                eventHandler.handleTaskFinishReports(e);
+                break;
             default:
-                System.out.println("Unrecognized protocol type.");
-
+                System.out.println("Unrecognized message type.");
         }
     }
 
@@ -105,6 +113,7 @@ public class Registry implements Node {
 
             addToNodeMap(id, overlayNode);
             overlayNode.setID(id);
+            System.out.println("Register successful, with ID: " + id);
             return id;
         } else {
             System.out.println("Node is already registered!");
