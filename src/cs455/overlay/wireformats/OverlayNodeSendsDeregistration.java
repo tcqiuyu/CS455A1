@@ -46,7 +46,19 @@ public class OverlayNodeSendsDeregistration implements Event {
 		din.close();
 	}
 
-	@Override
+    public String getIp() {
+        return ip;
+    }
+
+    public int getPort() {
+        return port;
+    }
+
+    public int getNodeID() {
+        return nodeID;
+    }
+
+    @Override
 	public int getType() {
 		return type;
 	}

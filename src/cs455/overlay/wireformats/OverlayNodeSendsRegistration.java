@@ -13,13 +13,13 @@ public class OverlayNodeSendsRegistration implements Event, Protocol {
 	private final int type = Protocol.OVERLAY_NODE_SENDS_REGISTRATION;
 
 	private int ipLength;
-	private String ip;
+	private String srcIP;
 
 	private int port;
 
-	public OverlayNodeSendsRegistration(int ipLength, String ip, int port){
+	public OverlayNodeSendsRegistration(int ipLength, String srcIP, int port){
 		this.ipLength = ipLength;
-		this.ip = ip;
+		this.srcIP = srcIP;
 		this.port = port;
 	}
 	
@@ -36,7 +36,7 @@ public class OverlayNodeSendsRegistration implements Event, Protocol {
 			ipLength = din.readInt();
 			byte[] ipBytes = new byte[ipLength];
 			din.readFully(ipBytes);
-			ip = new String(ipBytes);
+			srcIP = new String(ipBytes);
 		} else {
 			System.out.println("Message type does not match!");
 		}
@@ -45,7 +45,16 @@ public class OverlayNodeSendsRegistration implements Event, Protocol {
 		din.close();
 	}
 
-	@Override
+    public String getSrcIP() {
+        return srcIP;
+    }
+
+    public int getPort() {
+        return port;
+    }
+
+
+    @Override
 	public int getType() {
 		return type;
 	}
@@ -60,7 +69,7 @@ public class OverlayNodeSendsRegistration implements Event, Protocol {
 
 		dout.writeInt(type);
 		dout.writeInt(ipLength);
-		byte[] ipBytes = ip.getBytes();
+		byte[] ipBytes = srcIP.getBytes();
 		dout.write(ipBytes);
 
 		dout.flush();
@@ -72,6 +81,6 @@ public class OverlayNodeSendsRegistration implements Event, Protocol {
 
 	@Override
 	public String toString() {
-		return type + ":" + ipLength + ":" + ip + ":" + port;
+		return type + ":" + ipLength + ":" + srcIP + ":" + port;
 	}
 }

@@ -7,7 +7,7 @@ import cs455.overlay.node.Registry;
 import java.util.HashMap;
 import java.util.Map;
 
-public class InteractiveCommandParser {
+public class InteractiveCommandHandler {
 
     public static final int listMessagingNodes = 1;
     public static final int setupOverlay = 2;
@@ -21,7 +21,7 @@ public class InteractiveCommandParser {
 
     private Node node;
 
-    public InteractiveCommandParser(Node node) {
+    public InteractiveCommandHandler(Node node) {
 
         this.node = node;
     }

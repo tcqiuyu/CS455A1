@@ -1,23 +1,27 @@
 package cs455.overlay.node;
 
 import cs455.overlay.transport.TCPServerThread;
-import cs455.overlay.util.InteractiveCommandParser;
+import cs455.overlay.util.InteractiveCommandHandler;
 import cs455.overlay.wireformats.Event;
 
 import java.io.IOException;
 import java.net.InetAddress;
-import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Random;
 import java.util.Scanner;
 
 public class Registry implements Node {
 
-    private Socket socket;
 
     private TCPServerThread tcpServer;
-    private InteractiveCommandParser commandParser;
+    private InteractiveCommandHandler commandHandler;
 
     private int port;
+
+    private Map<Integer, OverlayNode> nodeMap = new HashMap<Integer, OverlayNode>();
+
 
     public Registry() {
         // TODO Auto-generated constructor stub
@@ -73,9 +77,60 @@ public class Registry implements Node {
         return InetAddress.getLocalHost();
     }
 
+    public int getNextID() {
+        Random ran = new Random();
+        int id;
+        do {
+            id = ran.nextInt(128);
+        } while (nodeMap.containsKey(id));
+        return id;
+    }
+
+    public synchronized int registerNode(int id, OverlayNode overlayNode) throws UnknownHostException {
+        if (!nodeMap.containsValue(overlayNode)) {
+
+            addToNodeMap(id, overlayNode);
+            overlayNode.setID(id);
+            return id;
+        } else {
+            System.out.println("Node is already registered!");
+            return -1;
+        }
+    }
+
+    public synchronized void addToNodeMap(int id, OverlayNode overlayNode) {
+        nodeMap.put(id, overlayNode);
+    }
+
+    public synchronized int deRegisterNode(String srcIP, int srcPort, int nodeID) {
+        if (nodeMap.containsKey(nodeID)) {
+            OverlayNode storedNode = nodeMap.get(nodeID);
+
+            String storedIP = storedNode.getHost();
+            int storedPort = storedNode.getPort();
+
+            if (storedIP.equals(srcIP) && storedPort == srcPort) {
+                nodeMap.remove(nodeID);
+                System.out.println("Deregistration successful. Node with ID " + nodeID + " is deregistered.");
+                return 1;
+            } else {
+                System.out.println("Deregistration failed. Node information provided is not consistent with the one " +
+                        "stored in registry.");
+                return -1;
+            }
+        } else {
+            System.out.println("Deregistration failed. Node is not in overlay!");
+            return -2;
+        }
+    }
+
+    public int getNodeAmount() {
+        return nodeMap.size();
+    }
+
     private void start() throws IOException {
         tcpServer = new TCPServerThread(this, port);
-        commandParser = new InteractiveCommandParser(this);
+        commandHandler = new InteractiveCommandHandler(this);
         tcpServer.start();
     }
 
@@ -90,17 +145,17 @@ public class Registry implements Node {
         }
 
 
-        switch (commandParser.getCommandValue(cmd)) {
-            case InteractiveCommandParser.listMessagingNodes:
+        switch (commandHandler.getCommandValue(cmd)) {
+            case InteractiveCommandHandler.listMessagingNodes:
 
                 break;
-            case InteractiveCommandParser.setupOverlay:
+            case InteractiveCommandHandler.setupOverlay:
 
                 break;
-            case InteractiveCommandParser.listRoutingTables:
+            case InteractiveCommandHandler.listRoutingTables:
 
                 break;
-            case InteractiveCommandParser.start:
+            case InteractiveCommandHandler.start:
 
                 break;
             default:

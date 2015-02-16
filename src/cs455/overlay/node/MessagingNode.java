@@ -1,7 +1,9 @@
 package cs455.overlay.node;
 
+import cs455.overlay.transport.ConnectionFactory;
+import cs455.overlay.transport.TCPConnection;
 import cs455.overlay.transport.TCPServerThread;
-import cs455.overlay.util.InteractiveCommandParser;
+import cs455.overlay.util.InteractiveCommandHandler;
 import cs455.overlay.wireformats.Event;
 import cs455.overlay.wireformats.OverlayNodeSendsRegistration;
 
@@ -16,7 +18,8 @@ public class MessagingNode implements Node {
     private int regPort;
 
     private TCPServerThread tcpServerThread;
-    private InteractiveCommandParser commandParser;
+    private InteractiveCommandHandler commandParser;
+    private int nodeID;
 
 
     public MessagingNode(String regHost, int regPort) {
@@ -65,12 +68,13 @@ public class MessagingNode implements Node {
         int regHostLength = regHost.length();
         Event registrationRequest = new OverlayNodeSendsRegistration(regHostLength, regHost, regPort);
         byte[] marshalledBytes = registrationRequest.getBytes();
-
+        TCPConnection connection = ConnectionFactory.getInstance().getConnection(regHost, regPort, this);
+        connection.sendData(marshalledBytes);
     }
 
     private void start() throws IOException {
         tcpServerThread = new TCPServerThread(this);
-        commandParser = new InteractiveCommandParser(this);
+        commandParser = new InteractiveCommandHandler(this);
         tcpServerThread.start();
     }
 
@@ -84,19 +88,23 @@ public class MessagingNode implements Node {
         return InetAddress.getLocalHost();
     }
 
-    public String getRegistryHost(){
+    public int getNodeID() {
+        return nodeID;
+    }
+
+    public String getRegistryHost() {
         return regHost;
     }
 
-    public int getRegistryPort(){
+    public int getRegistryPort() {
         return regPort;
     }
 
     private void handleCommand(String command) {
         switch (commandParser.getCommandValue(command)) {
-            case InteractiveCommandParser.printCountersAndDiagnostics:
+            case InteractiveCommandHandler.printCountersAndDiagnostics:
                 break;
-            case InteractiveCommandParser.exitOverlay:
+            case InteractiveCommandHandler.exitOverlay:
                 break;
             default:
                 break;
