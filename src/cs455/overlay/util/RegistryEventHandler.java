@@ -35,7 +35,7 @@ public class RegistryEventHandler {
         String info;
         int infoLength;
         if (regResult != -1) {//registration successful
-            info = "Registration request successful. The numer of messaging nodes curretly constituting the overlay " +
+            info = "Registration request successful. The number of messaging nodes currently constituting the overlay " +
                     "is (" + registry.getNodeAmount() + ")";
             infoLength = info.length();
         } else {//registration failed
@@ -45,7 +45,7 @@ public class RegistryEventHandler {
 
 
         RegistryReportsRegistrationStatus regReport = new RegistryReportsRegistrationStatus(regResult, infoLength, info);
-        System.out.println("Getting connection from incoming node..." + "ip: " + srcIP + ", port: " + srcPort);
+        System.out.println("Getting connection from incoming node..." + "IP: " + srcIP + ", Port: " + srcPort);
         TCPConnection connection = ConnectionFactory.getInstance().getConnection(srcIP, srcPort, registry);
         System.out.println("Sending registration report...");
         try {
@@ -65,6 +65,7 @@ public class RegistryEventHandler {
         int srcPort = deregRequest.getPort();
         int nodeID = deregRequest.getNodeID();
 
+        System.out.println("Receiving deregistration request with IP: " + srcIP + ", Port: " + ", node ID: " + nodeID);
 
         String info;
         int infoLength;

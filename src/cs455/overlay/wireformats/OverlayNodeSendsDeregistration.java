@@ -38,7 +38,9 @@ public class OverlayNodeSendsDeregistration implements Event {
 			byte[] ipBytes = new byte[ipLength];
 			din.readFully(ipBytes);
 			ip = new String(ipBytes);
-		} else {
+            port = din.readInt();
+            nodeID = din.readInt();
+        } else {
 			System.err.println("Message type does not match!");
 		}
 
@@ -74,8 +76,9 @@ public class OverlayNodeSendsDeregistration implements Event {
 		dout.writeInt(ipLength);
 		byte[] ipBytes = ip.getBytes();
 		dout.write(ipBytes);
-
-		dout.flush();
+        dout.writeInt(port);
+        dout.writeInt(nodeID);
+        dout.flush();
 
 		marshalledBytes = baOutputStream.toByteArray();
 		dout.close();

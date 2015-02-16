@@ -3,7 +3,6 @@ package cs455.overlay.transport;
 import cs455.overlay.node.Node;
 
 import java.io.IOException;
-import java.net.InetAddress;
 import java.net.Socket;
 import java.util.HashMap;
 import java.util.Map;
@@ -24,8 +23,8 @@ public class ConnectionFactory {
         return instance;
     }
 
-    public synchronized void registerConnection(TCPConnection connection) {
-        String key = getKey(connection);
+    public synchronized void registerConnection(String host, int port, TCPConnection connection) {
+        String key = getKey(host, port);
         connectionMap.put(key, connection);
     }
 
@@ -38,20 +37,20 @@ public class ConnectionFactory {
             connection = connectionMap.get(key);
             System.out.println("Find connection... Host: " + host + ", Port: " + port);
         } else {
-            Socket s = new Socket(host, port);
             System.out.println("Cannot find connection. Create one...Host: " + host + ", Port: " + port);
+
+            Socket s = new Socket(host, port);
             connection = new TCPConnection(node, s);
 
-            registerConnection(connection);
+            registerConnection(host, port, connection);
 
 
         }
         return connection;
     }
 
-    private String getKey(TCPConnection connection) {
-        Socket socket = connection.getSocket();
-        return socket.getInetAddress() + ":" + socket.getPort();
+    private String getKey(String host, int port) {
+        return host + ":" + port;
     }
 
 

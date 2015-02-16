@@ -19,12 +19,11 @@ public class MessagingNode implements Node {
     private int localPort;
     private String regHost;
     private int regPort;
-
-
+    private int nodeID;
+    private boolean isRegistered = false;
     private TCPServerThread tcpServerThread;
-    private InteractiveCommandHandler commandParser;
+    private InteractiveCommandHandler commandHandler;
     private MessagingNodeEventHandler eventHandler;
-
     public MessagingNode(String regHost, int regPort) {
         this.regHost = regHost;
         this.regPort = regPort;
@@ -69,6 +68,18 @@ public class MessagingNode implements Node {
 
     }
 
+    public int getNodeID() {
+        return nodeID;
+    }
+
+    public void setNodeID(int nodeID) {
+        this.nodeID = nodeID;
+    }
+
+    public void setRegistered(boolean isRegistered) {
+        this.isRegistered = isRegistered;
+    }
+
     private void register() throws IOException {
 
 
@@ -85,7 +96,6 @@ public class MessagingNode implements Node {
         TCPConnection connection = ConnectionFactory.getInstance().getConnection(regHost, regPort, this);
 
 //        localPort = connection.getSocket().getLocalPort();
-        System.out.println("Successful get connection.");
         System.out.println("Sending registration request...");
         connection.sendData(marshalledBytes);
     }
@@ -95,7 +105,7 @@ public class MessagingNode implements Node {
         localPort = tcpServerThread.getLocalPort();
 
         System.out.println("Local port is " + localPort);
-        commandParser = new InteractiveCommandHandler(this);
+        commandHandler = new InteractiveCommandHandler(this);
         eventHandler = new MessagingNodeEventHandler(this);
         tcpServerThread.start();
     }
@@ -145,11 +155,12 @@ public class MessagingNode implements Node {
     }
 
     private void handleCommand(String command) {
-        switch (commandParser.getCommandValue(command)) {
+        switch (commandHandler.getCommandValue(command)) {
             case InteractiveCommandHandler.printCountersAndDiagnostics:
+                commandHandler.printCountersAndDiagnostics();
                 break;
             case InteractiveCommandHandler.exitOverlay:
-
+                commandHandler.exitOverlay();
                 break;
             default:
                 break;

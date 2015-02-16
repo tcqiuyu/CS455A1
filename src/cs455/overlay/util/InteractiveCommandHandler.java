@@ -3,7 +3,12 @@ package cs455.overlay.util;
 import cs455.overlay.node.MessagingNode;
 import cs455.overlay.node.Node;
 import cs455.overlay.node.Registry;
+import cs455.overlay.transport.ConnectionFactory;
+import cs455.overlay.transport.TCPConnection;
+import cs455.overlay.wireformats.OverlayNodeSendsDeregistration;
 
+import java.io.IOException;
+import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -24,6 +29,7 @@ public class InteractiveCommandHandler {
     public InteractiveCommandHandler(Node node) {
 
         this.node = node;
+        initMap();
     }
 
     public void listMessagingNodes() {
@@ -48,6 +54,24 @@ public class InteractiveCommandHandler {
 
     public void exitOverlay() {
         MessagingNode msgNode = (MessagingNode) node;
+        String host;
+        int port = msgNode.getLocalPort();
+        int nodeID = msgNode.getNodeID();
+
+        try {
+            host = msgNode.getLocalhost().getHostAddress();
+            int hostLength = host.length();
+            OverlayNodeSendsDeregistration deregRequest = new OverlayNodeSendsDeregistration(hostLength, host, port, nodeID);
+            System.out.println("Deregistering current node with IP: " + host + ", Port: " + port + ", node ID: " + nodeID);
+            TCPConnection connection = ConnectionFactory.getInstance().getConnection(msgNode.getRegistryHost(), msgNode.getRegistryPort(), msgNode);
+            connection.sendData(deregRequest.getBytes());
+        } catch (UnknownHostException e) {
+            System.out.println("Failed to get local host: " + e.getMessage());
+        } catch (IOException e) {
+            System.out.println("Failed to find connection to registry");
+            e.printStackTrace();
+        }
+
     }
 
     private void initMap() {
