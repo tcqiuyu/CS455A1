@@ -30,6 +30,9 @@ public class TCPServerThread extends Thread {
         serverSocket = new ServerSocket(this.localPort);
     }
 
+    public int getLocalPort() {
+        return localPort;
+    }
 
     @Override
     public void run() {

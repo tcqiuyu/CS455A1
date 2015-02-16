@@ -23,9 +23,13 @@ public class RegistryEventHandler {
         OverlayNodeSendsRegistration regRequest = (OverlayNodeSendsRegistration) event;
 
         String srcIP = regRequest.getSrcIP();
-        int srcPort = regRequest.getPort();
+        int srcPort = regRequest.getSrcPort();
+
+        System.out.println("Receive registration request from host: " + srcIP + " port: " + srcPort);
         OverlayNode overlayNode = new OverlayNode(srcIP, srcPort);
+
         int nodeID = registry.getNextID();
+        System.out.println("Allocate ID " + nodeID + " to incoming messaging node");
         int regResult = registry.registerNode(nodeID, overlayNode);
 
         String info;

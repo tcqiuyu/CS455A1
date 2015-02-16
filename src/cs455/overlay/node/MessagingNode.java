@@ -14,12 +14,13 @@ import java.util.Scanner;
 
 public class MessagingNode implements Node {
 
+    private int localPort;
     private String regHost;
     private int regPort;
 
+
     private TCPServerThread tcpServerThread;
     private InteractiveCommandHandler commandParser;
-    private int nodeID;
 
 
     public MessagingNode(String regHost, int regPort) {
@@ -42,12 +43,14 @@ public class MessagingNode implements Node {
         try {
             messagingNode = new MessagingNode(regHost, regPort);
             messagingNode.start();
-            System.out.print("Messaging Node is up on host: " + regHost + ", port number: " + regPort);
+            System.out.println("Messaging Node is up on host: " + regHost + ", port number: " + regPort);
         } catch (IOException e) {
             System.out.println("Failed to setup messaging Node: " + e.getMessage());
         }
 
         //register messaging node to registry
+
+        System.out.println("Messaging Node is registering to registry.");
         try {
             messagingNode.register();
         } catch (IOException ioe) {
@@ -65,15 +68,30 @@ public class MessagingNode implements Node {
     }
 
     private void register() throws IOException {
-        int regHostLength = regHost.length();
-        Event registrationRequest = new OverlayNodeSendsRegistration(regHostLength, regHost, regPort);
+
+
+        int localHostLength = getLocalhost().toString().length();
+        System.out.println("Creating registration request with localhost " + getLocalhost() + " and localport " +
+                getLocalPort());
+        OverlayNodeSendsRegistration registrationRequest = new OverlayNodeSendsRegistration(localHostLength,
+                getLocalhost().toString(),
+                localPort);
         byte[] marshalledBytes = registrationRequest.getBytes();
+
+        System.out.println("Getting connection...");
         TCPConnection connection = ConnectionFactory.getInstance().getConnection(regHost, regPort, this);
+
+//        localPort = connection.getSocket().getLocalPort();
+        System.out.println("Successful get connection.");
+        System.out.println("Sending registration request...");
         connection.sendData(marshalledBytes);
     }
 
     private void start() throws IOException {
         tcpServerThread = new TCPServerThread(this);
+        localPort = tcpServerThread.getLocalPort();
+
+        System.out.println("Local port is "+localPort);
         commandParser = new InteractiveCommandHandler(this);
         tcpServerThread.start();
     }
@@ -88,8 +106,8 @@ public class MessagingNode implements Node {
         return InetAddress.getLocalHost();
     }
 
-    public int getNodeID() {
-        return nodeID;
+    public int getLocalPort() {
+        return localPort;
     }
 
     public String getRegistryHost() {

@@ -2,7 +2,9 @@ package cs455.overlay.node;
 
 import cs455.overlay.transport.TCPServerThread;
 import cs455.overlay.util.InteractiveCommandHandler;
+import cs455.overlay.util.RegistryEventHandler;
 import cs455.overlay.wireformats.Event;
+import cs455.overlay.wireformats.Protocol;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -17,6 +19,7 @@ public class Registry implements Node {
 
     private TCPServerThread tcpServer;
     private InteractiveCommandHandler commandHandler;
+    private RegistryEventHandler eventHandler;
 
     private int port;
 
@@ -68,9 +71,20 @@ public class Registry implements Node {
     }
 
     @Override
-    public void onEvent(Event e) {
+    public void onEvent(Event e) throws IOException {
         // TODO Auto-generated method stub
+        int type = e.getType();
+        switch (type) {
+            case Protocol.OVERLAY_NODE_SENDS_REGISTRATION:
+                eventHandler.handleRegRequest(e);
+                break;
+            case Protocol.REGISTRY_REPORTS_DEREGISTRATION_STATUS:
+                eventHandler.handleDeregRequest(e);
+                break;
+            default:
+                System.out.println("Unrecognized protocol type.");
 
+        }
     }
 
     public InetAddress getLocolhost() throws UnknownHostException {
@@ -131,6 +145,7 @@ public class Registry implements Node {
     private void start() throws IOException {
         tcpServer = new TCPServerThread(this, port);
         commandHandler = new InteractiveCommandHandler(this);
+        eventHandler = new RegistryEventHandler(this);
         tcpServer.start();
     }
 
