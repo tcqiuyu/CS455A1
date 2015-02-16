@@ -2,6 +2,7 @@ package cs455.overlay.util;
 
 import cs455.overlay.node.MessagingNode;
 import cs455.overlay.wireformats.Event;
+import cs455.overlay.wireformats.RegistryReportsDeregistrationStatus;
 import cs455.overlay.wireformats.RegistryReportsRegistrationStatus;
 
 /**
@@ -29,6 +30,12 @@ public class MessagingNodeEventHandler {
     }
 
     public void handleDeregReports(Event event) {
+        RegistryReportsDeregistrationStatus deregReport = (RegistryReportsDeregistrationStatus) event;
+        if (deregReport.getStatus() > 0) {
+            messagingNode.setRegistered(false);
+            messagingNode.setNodeID(-1);
+        }
+        System.out.println(deregReport.getInfo());
 
     }
 

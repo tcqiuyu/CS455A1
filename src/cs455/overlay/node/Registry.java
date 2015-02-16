@@ -9,10 +9,7 @@ import cs455.overlay.wireformats.Protocol;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Random;
-import java.util.Scanner;
+import java.util.*;
 
 public class Registry implements Node {
 
@@ -187,6 +184,11 @@ public class Registry implements Node {
                 break;
         }
 
+    }
+
+    public void initOverlay(){
+        Set entrySet = nodeMap.entrySet();
+        entrySet.iterator().remove()
     }
 
 

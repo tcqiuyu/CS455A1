@@ -92,10 +92,11 @@ public class RegistryEventHandler {
                 break;
         }
 
-        TCPConnection connection = ConnectionFactory.getInstance().getConnection(srcIP, srcPort, registry);
 
         try {
             if (deregReport != null) {
+                System.out.println("Send deregistration report to messaging node...");
+                TCPConnection connection = ConnectionFactory.getInstance().getConnection(srcIP, srcPort, registry);
                 connection.sendData(deregReport.getBytes());
             }
         } catch (IOException ioe) {
@@ -103,7 +104,10 @@ public class RegistryEventHandler {
             node.setID(nodeID);
             registry.addToNodeMap(nodeID, node);
             System.out.println("Deregistration report failed to send: " + ioe.getMessage());
+            return;
         }
+
+        System.out.println("Deregistration report successful to send.");
     }
 
     public void handleTaskFinishReports(Event event) {

@@ -13,8 +13,16 @@ public class RegistryReportsDeregistrationStatus implements Event {
 	private final int type = Protocol.REGISTRY_REPORTS_DEREGISTRATION_STATUS;
 	
 	private int status;
-	
-	private int infoLength;
+
+    public int getStatus() {
+        return status;
+    }
+
+    public String getInfo() {
+        return info;
+    }
+
+    private int infoLength;
 	private String info;
 
 	public RegistryReportsDeregistrationStatus(int status, int infoLength, String info) {
