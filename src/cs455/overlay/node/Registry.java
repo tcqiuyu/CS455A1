@@ -1,5 +1,7 @@
 package cs455.overlay.node;
 
+import cs455.overlay.routing.RoutingEntry;
+import cs455.overlay.routing.RoutingTable;
 import cs455.overlay.transport.TCPServerThread;
 import cs455.overlay.util.InteractiveCommandHandler;
 import cs455.overlay.util.RegistryEventHandler;
@@ -13,16 +15,16 @@ import java.util.*;
 
 public class Registry implements Node {
 
-
+    public static final int MAX_REGISTER_NUMBER = 128;
+    RoutingEntry[] routingEntries;
     private TCPServerThread tcpServer;
     private InteractiveCommandHandler commandHandler;
     private RegistryEventHandler eventHandler;
-
     private int port;
 
     private Map<Integer, OverlayNode> nodeMap = new HashMap<Integer, OverlayNode>();
-
-
+    private int[] idArray;
+    private RoutingTable[] routingTableArray;
     public Registry() {
         // TODO Auto-generated constructor stub
     }
@@ -100,7 +102,7 @@ public class Registry implements Node {
         Random ran = new Random();
         int id;
         do {
-            id = ran.nextInt(128);
+            id = ran.nextInt(MAX_REGISTER_NUMBER);
         } while (nodeMap.containsKey(id));
         return id;
     }
@@ -186,10 +188,34 @@ public class Registry implements Node {
 
     }
 
-    public void initOverlay(){
-        Set entrySet = nodeMap.entrySet();
-        entrySet.iterator().remove()
+    public int[] getIdArray() {
+        return idArray;
+    }
+
+    private void initOverlay() {
+        Iterator<Integer> keyIter = nodeMap.keySet().iterator();
+
+        routingEntries = new RoutingEntry[MAX_REGISTER_NUMBER];
+
+        for (int i = 0; i < MAX_REGISTER_NUMBER; i++) {
+            while (keyIter.hasNext()) {
+                int nextID = keyIter.next();
+                idArray[i] = nextID;
+                routingEntries[nextID] = new RoutingEntry(nodeMap.get(nextID));
+            }
+        }
+
     }
 
 
+    public void setupOverlay(int routingTableSize) {
+        initOverlay();
+        for (int id = 0; id < MAX_REGISTER_NUMBER; id++) {
+            if (routingEntries[id] != null) {
+                RoutingTable routingTable = new RoutingTable(routingTableSize, routingEntries, id);
+
+                routingTableArray[id] = routingTable;
+            }
+        }
+    }
 }

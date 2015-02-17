@@ -1,20 +1,29 @@
 package cs455.overlay.routing;
 
 public class RoutingTable {
-	
-	
-	private int[] nodeIDArray;
 
-	public RoutingTable() {
-		
-	}
+    private int size;
 
-	public RoutingTable(int s) {
+    private RoutingEntry[] routingTable;
 
-	}
+	public RoutingTable(int size, RoutingEntry[] entries, int id) {
+        routingTable = new RoutingEntry[size];
+        this.size = size;
+        initTable(entries, id);
+    }
 
-	public int[] getTable() {
-		return nodeIDArray;
-	}
+    private void initTable(RoutingEntry[] entries, int id) {
+        for (int i = 0; i < size; i++) {
+
+        }
+    }
+
+	public RoutingEntry[] getTable() {
+        return routingTable;
+    }
+
+    public int getSize() {
+        return size;
+    }
 
 }
