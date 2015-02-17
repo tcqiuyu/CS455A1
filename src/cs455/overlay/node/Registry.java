@@ -213,7 +213,6 @@ public class Registry implements Node {
         for (int id = 0; id < MAX_REGISTER_NUMBER; id++) {
             if (routingEntries[id] != null) {
                 RoutingTable routingTable = new RoutingTable(routingTableSize, routingEntries, id);
-
                 routingTableArray[id] = routingTable;
             }
         }

@@ -14,7 +14,7 @@ public class RoutingTable {
 
     private void initTable(RoutingEntry[] entries, int id) {
         for (int i = 0; i < size; i++) {
-
+            routingTable[i] = entries[id+2^i];
         }
     }
 
