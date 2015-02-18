@@ -30,7 +30,7 @@ public class ConnectionFactory {
         connectionMap.put(key, connection);
     }
 
-    public synchronized TCPConnection getConnection(String host, int port, Node node) throws
+    public TCPConnection getConnection(String host, int port, Node node) throws
             IOException {
 //        System.out.println("\nLooking for connection...");
         TCPConnection connection = null;
