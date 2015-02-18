@@ -31,22 +31,6 @@ public class MessagingNode implements Node {
     private ArrayList<Integer> idArray;
 
 
-    public RoutingTable getRoutingTable() {
-        return routingTable;
-    }
-
-    public void setRoutingTable(RoutingTable routingTable) {
-        this.routingTable = routingTable;
-    }
-
-    public ArrayList<Integer> getIdArray() {
-        return idArray;
-    }
-
-    public void setIdArray(ArrayList<Integer> idArray) {
-        this.idArray = idArray;
-    }
-
     public MessagingNode(String regHost, int regPort) {
         this.regHost = regHost;
         this.regPort = regPort;
@@ -88,6 +72,22 @@ public class MessagingNode implements Node {
             messagingNode.handleCommand(command);
         }
 
+    }
+
+    public RoutingTable getRoutingTable() {
+        return routingTable;
+    }
+
+    public void setRoutingTable(RoutingTable routingTable) {
+        this.routingTable = routingTable;
+    }
+
+    public ArrayList<Integer> getIdArray() {
+        return idArray;
+    }
+
+    public void setIdArray(ArrayList<Integer> idArray) {
+        this.idArray = idArray;
     }
 
     public int getNodeID() {
@@ -140,9 +140,14 @@ public class MessagingNode implements Node {
                 eventHandler.handleDeregReports(e);
                 break;
             case Protocol.REGISTRY_SENDS_NODE_MANIFEST:
-                eventHandler.handleNodeManifest(e);
+                try {
+                    eventHandler.handleNodeManifest(e);
+                } catch (IOException e1) {
+                    System.out.println("Failed to handle node manifest.");
+                    e1.printStackTrace();
+                }
                 break;
-            case Protocol.REGISTRY_REQUESTS_TAST_INITIATE:
+            case Protocol.REGISTRY_REQUESTS_TASK_INITIATE:
                 eventHandler.handleTaskInitRequest(e);
                 break;
             case Protocol.REGISTRY_REQUESTS_TRAFFIC_SUMMARY:
@@ -187,7 +192,4 @@ public class MessagingNode implements Node {
 
     }
 
-    public void initRoutingConnection() {
-
-    }
 }

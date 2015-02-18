@@ -43,7 +43,7 @@ public class RegistryReportsDeregistrationStatus implements Event {
 			din.readFully(infoBytes);
 			info = new String(infoBytes);
 		} else {
-			System.err.println("Message type does not match!");
+			System.out.println("Message type does not match!");
 		}
 		
 		baInputStream.close();

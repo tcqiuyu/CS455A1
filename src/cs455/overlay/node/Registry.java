@@ -16,13 +16,11 @@ import java.util.*;
 public class Registry implements Node {
 
     public static final int MAX_REGISTER_NUMBER = 128;
-    RoutingEntry[] routingEntries;
+    private RoutingEntry[] routingEntries;
     private TCPServerThread tcpServer;
     private InteractiveCommandHandler commandHandler;
     private RegistryEventHandler eventHandler;
-
     private int port;
-
     private Map<Integer, OverlayNode> nodeMap = new HashMap<Integer, OverlayNode>();
     private ArrayList<Integer> idArray = new ArrayList<Integer>();
     private RoutingTable[] routingTableArray = new RoutingTable[MAX_REGISTER_NUMBER];
@@ -68,6 +66,10 @@ public class Registry implements Node {
             String command = scanner.nextLine();
             registry.handleCommand(command);
         }
+    }
+
+    public RoutingEntry[] getRoutingEntries() {
+        return routingEntries;
     }
 
     public RoutingTable[] getRoutingTableArray() {
@@ -195,7 +197,7 @@ public class Registry implements Node {
             case InteractiveCommandHandler.listRoutingTables:
                 break;
             case InteractiveCommandHandler.start:
-
+                commandHandler.start(para);
                 break;
             default:
 
@@ -204,7 +206,7 @@ public class Registry implements Node {
 
     }
 
-    public ArrayList getIdArray() {
+    public ArrayList<Integer> getIdArray() {
         return idArray;
     }
 

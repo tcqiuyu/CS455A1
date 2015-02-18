@@ -11,7 +11,7 @@ public interface Protocol {
 		static final int REGISTRY_SENDS_NODE_MANIFEST=6;
 		static final int NODE_REPORTS_OVERLAY_SETUP_STATUS=7;
 		
-		static final int REGISTRY_REQUESTS_TAST_INITIATE=8;
+		static final int REGISTRY_REQUESTS_TASK_INITIATE =8;
 		static final int OVERLAY_NODE_SENDS_DATA=9;
 		static final int OVERLAY_NODE_REPORTS_TASK_FINISHED=10;
 		

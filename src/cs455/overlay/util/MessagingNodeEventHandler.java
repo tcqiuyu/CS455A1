@@ -4,13 +4,12 @@ import cs455.overlay.node.MessagingNode;
 import cs455.overlay.routing.RoutingEntry;
 import cs455.overlay.routing.RoutingTable;
 import cs455.overlay.transport.ConnectionFactory;
-import cs455.overlay.wireformats.Event;
-import cs455.overlay.wireformats.RegistryReportsDeregistrationStatus;
-import cs455.overlay.wireformats.RegistryReportsRegistrationStatus;
-import cs455.overlay.wireformats.RegistrySendNodeManifest;
+import cs455.overlay.transport.TCPConnection;
+import cs455.overlay.wireformats.*;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Random;
 
 /**
  * Created by Qiu on 2/15/2015.
@@ -46,15 +45,12 @@ public class MessagingNodeEventHandler {
 
     }
 
-    public void handleTaskInitRequest(Event event) {
-
-    }
 
     public void handleTrafficSummaryRequest(Event event) {
 
     }
 
-    public void handleNodeManifest(Event event) {
+    public void handleNodeManifest(Event event) throws IOException {
         RegistrySendNodeManifest manifestReport = (RegistrySendNodeManifest) event;
 
         RoutingTable routingTable = manifestReport.getRoutingTable();
@@ -63,6 +59,11 @@ public class MessagingNodeEventHandler {
         messagingNode.setIdArray(idArray);
 
         System.out.println("Establishing connection to routing nodes...");
+
+        TCPConnection registerConnection = null;
+        registerConnection = ConnectionFactory.getInstance().getConnection(messagingNode.getRegistryHost(), messagingNode.getRegistryPort(), messagingNode);
+
+        NodeReportsOverlaySetupStatus setupStatusReport;
 
         for (int i = 0; i < routingTable.getSize(); i++) {
             RoutingEntry entry = routingTable.getTable()[i];
@@ -74,14 +75,109 @@ public class MessagingNodeEventHandler {
                 System.out.println("Connection failed.");
                 System.out.println(e.getMessage());
                 //send fail setup status to registry
+                String info = "Node ID " + messagingNode.getNodeID() + " initiate routing connection failed: " + e.getMessage();
+                setupStatusReport = new NodeReportsOverlaySetupStatus(-1, info.length(), info);
+                registerConnection.sendData(setupStatusReport.getBytes());
 
             }
 
         }
+
+        String info = "Node ID: " + messagingNode.getNodeID() + " successfully connect to all nodes in its routing table.";
+        setupStatusReport = new NodeReportsOverlaySetupStatus(messagingNode.getNodeID(), info.length(), info);
+        registerConnection.sendData(setupStatusReport.getBytes());
+
     }
 
+    public void handleTaskInitRequest(Event event) {
+        RegistryRequestsTaskInitiate taskInitReq = (RegistryRequestsTaskInitiate) event;
+
+        int packageNum = taskInitReq.getPackageNum();
+        System.out.println("Received task initiate request. Sending " + packageNum + " packages.");
+        try {
+            initTask(packageNum);
+        } catch (IOException e) {
+            System.out.println("Failed to initiate task. " + e.getMessage());
+        }
+    }
+
+    private void initTask(int packageNum) throws IOException {
+
+        System.out.println("Initiating task...");
+        ArrayList<Integer> idArray = messagingNode.getIdArray();
+        Random ran = new Random();
+
+        int randomDestID = idArray.get(ran.nextInt(idArray.size()));
+
+        //won't target itself
+        while (randomDestID == messagingNode.getNodeID()) {
+            randomDestID = idArray.get(ran.nextInt(idArray.size()));
+        }
+
+        System.out.println("Random destination is node " + randomDestID);
+        RoutingEntry[] entries = messagingNode.getRoutingTable().getTable();
+        int nextIndex = getNextRoutingIndex(randomDestID, entries);
+        RoutingEntry nextEntry = entries[nextIndex];
+
+        String host = nextEntry.getLocalhost();
+        int port = nextEntry.getPort();
+
+        TCPConnection connection = ConnectionFactory.getInstance().getConnection(host, port, messagingNode);
+
+        System.out.println("Sending packages to node " + nextEntry.getNodeID());
+        for (int i = 0; i < packageNum; i++) {
+            OverlayNodeSendsData dataToSend = new OverlayNodeSendsData(randomDestID, messagingNode.getNodeID());
+            connection.sendData(dataToSend.getBytes());
+        }
+    }
+
+    private int getNextRoutingIndex(int destID, RoutingEntry[] entries) {
+
+        for (int i = 0; i < entries.length - 1; i++) {
+            if (entries[i].getNodeID() == destID)
+                return i;
+
+            int diff1 = entries[i].getNodeID() - destID;
+            int diff2 = entries[i + 1].getNodeID() - destID;
+            if (diff1 < 0 && diff2 > 0)
+                return i;
+            if (entries[i].getNodeID() > entries[i + 1].getNodeID() && entries[i + 1].getNodeID() > destID)
+                return i;
+            if (entries[i].getNodeID() > entries[i + 1].getNodeID() && entries[i].getNodeID() < destID)
+                return i;
+        }
+        return entries.length - 1;
+    }
 
     public void handleNodeSendData(Event event) {
+        OverlayNodeSendsData overlayNodeSendsData = (OverlayNodeSendsData) event;
+
+        overlayNodeSendsData.updateTrace(messagingNode.getNodeID());
+
+        if (messagingNode.getNodeID() == overlayNodeSendsData.getDestID()) {
+            System.out.println("Received package from Node " + overlayNodeSendsData.getSrcID());
+            return;
+        }
+
+        RoutingEntry[] entries = messagingNode.getRoutingTable().getTable();
+
+        int nextIndex = getNextRoutingIndex(overlayNodeSendsData.getDestID(), entries);
+
+        RoutingEntry nextEntry = entries[nextIndex];
+        String host = nextEntry.getLocalhost();
+        int port = nextEntry.getPort();
+
+        System.out.println("Routing package from node " + overlayNodeSendsData.getSrcID() + ", to node " + overlayNodeSendsData.getDestID() + ", next node is node " + nextEntry.getNodeID());
+
+        try {
+            TCPConnection connection = ConnectionFactory.getInstance().getConnection(host, port, messagingNode);
+
+            System.out.println("Sending packages to node " + nextEntry.getNodeID());
+            connection.sendData(overlayNodeSendsData.getBytes());
+        } catch (IOException e) {
+            System.out.println("Failed to connect to node " + nextEntry.getNodeID());
+            System.out.println(e.getMessage());
+        }
 
     }
 }

@@ -4,13 +4,16 @@ import cs455.overlay.node.MessagingNode;
 import cs455.overlay.node.Node;
 import cs455.overlay.node.OverlayNode;
 import cs455.overlay.node.Registry;
+import cs455.overlay.routing.RoutingEntry;
 import cs455.overlay.transport.ConnectionFactory;
 import cs455.overlay.transport.TCPConnection;
 import cs455.overlay.wireformats.OverlayNodeSendsDeregistration;
+import cs455.overlay.wireformats.RegistryRequestsTaskInitiate;
 import cs455.overlay.wireformats.RegistrySendNodeManifest;
 
 import java.io.IOException;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -49,7 +52,6 @@ public class InteractiveCommandHandler {
             int port = currentNode.getPort();
             int id = currentNode.getNodeID();
             try {
-                System.out.println("Looking for connection on host: " + host);
                 TCPConnection connection = ConnectionFactory.getInstance().getConnection(host, port, registry);
                 System.out.println("Broadcast manifest report.");
                 RegistrySendNodeManifest sendManifest = new RegistrySendNodeManifest(registry.getRoutingTableArray()[id], registry.getIdArray());
@@ -67,6 +69,24 @@ public class InteractiveCommandHandler {
 
     public void start(int msgNumber) {
         Registry registry = (Registry) node;
+        RoutingEntry[] entries = registry.getRoutingEntries();
+        ArrayList<Integer> idArray = registry.getIdArray();
+        RegistryRequestsTaskInitiate taskInitReq = new RegistryRequestsTaskInitiate(msgNumber);
+        for (int i = 0; i < idArray.size(); i++) {
+            RoutingEntry entry = entries[idArray.get(i)];
+            String host = entry.getLocalhost();
+            int port = entry.getPort();
+            int nodeID = entry.getNodeID();
+            TCPConnection connection = null;
+            try {
+                connection = ConnectionFactory.getInstance().getConnection(host, port, registry);
+                connection.sendData(taskInitReq.getBytes());
+            } catch (IOException e) {
+                System.out.println("Failed to send task initiate request to node " + nodeID);
+                System.out.println(e.getMessage());
+            }
+
+        }
     }
 
     public void printCountersAndDiagnostics() {

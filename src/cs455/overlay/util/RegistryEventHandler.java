@@ -120,7 +120,8 @@ public class RegistryEventHandler {
     }
 
     public void handleSetupStatusReports(Event event) {
-
+        NodeReportsOverlaySetupStatus setupStatusReport = (NodeReportsOverlaySetupStatus) event;
+        System.out.println(setupStatusReport.getInfo());
     }
 
 
