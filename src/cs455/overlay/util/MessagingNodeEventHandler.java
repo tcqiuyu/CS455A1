@@ -137,7 +137,7 @@ public class MessagingNodeEventHandler {
 
             OverlayNodeSendsData dataToSend = new OverlayNodeSendsData(randomDestID, messagingNode.getNodeID());
             connection.sendData(dataToSend.getBytes());
-            messagingNode.updateTracker(dataToSend);
+            messagingNode.handleNodeSendsData(dataToSend);
         }
 
 //        try {
@@ -149,7 +149,7 @@ public class MessagingNodeEventHandler {
 //        }
     }
 
-    private int getNextRoutingIndex(int destID, RoutingEntry[] entries) {
+    public int getNextRoutingIndex(int destID, RoutingEntry[] entries) {
 
         for (int i = 0; i < entries.length - 1; i++) {
             if (entries[i].getNodeID() == destID)
@@ -167,44 +167,44 @@ public class MessagingNodeEventHandler {
         return entries.length - 1;
     }
 
-    public void handleNodeSendData(Event event) {
-        OverlayNodeSendsData overlayNodeSendsData = (OverlayNodeSendsData) event;
+//    public void handleNodeSendData(Event event) {
+//        OverlayNodeSendsData overlayNodeSendsData = (OverlayNodeSendsData) event;
+//
+//        overlayNodeSendsData.updateTrace(messagingNode.getNodeID());
+//
+//        if (messagingNode.getNodeID() == overlayNodeSendsData.getDestID()) {
+////            System.out.println("Received package from Node " + overlayNodeSendsData.getSrcID());
+//            messagingNode.handleNodeSendsData(overlayNodeSendsData);
+//
+//            return;
+//        }
+//
+//        RoutingEntry[] entries = messagingNode.getRoutingTable().getTable();
+//
+//        int nextIndex = getNextRoutingIndex(overlayNodeSendsData.getDestID(), entries);
+//
+//        RoutingEntry nextEntry = entries[nextIndex];
+//        String host = nextEntry.getLocalhost();
+//        int port = nextEntry.getPort();
+//
+////        System.out.println("Routing package from node " + overlayNodeSendsData.getSrcID() + ", to node " + overlayNodeSendsData.getDestID() + ", next node is node " + nextEntry.getNodeID());
+//
+//        try {
+//            TCPConnection connection = ConnectionFactory.getInstance().getConnection(host, port, messagingNode);
+//
+////            System.out.println("Sending packages to node " + nextEntry.getNodeID());
+//            connection.sendData(overlayNodeSendsData.getBytes());
+//
+////            System.out.println("OVERLAY: from"+overlayNodeSendsData.getDestID()+)
+//            messagingNode.handleNodeSendsData(overlayNodeSendsData);
+//
+//        } catch (IOException e) {
+//            System.out.println("Failed to connect to node " + nextEntry.getNodeID());
+//            System.out.println(e.getMessage());
+//        }
+//    }
 
-        overlayNodeSendsData.updateTrace(messagingNode.getNodeID());
-
-        if (messagingNode.getNodeID() == overlayNodeSendsData.getDestID()) {
-//            System.out.println("Received package from Node " + overlayNodeSendsData.getSrcID());
-            messagingNode.updateTracker(overlayNodeSendsData);
-
-            return;
-        }
-
-        RoutingEntry[] entries = messagingNode.getRoutingTable().getTable();
-
-        int nextIndex = getNextRoutingIndex(overlayNodeSendsData.getDestID(), entries);
-
-        RoutingEntry nextEntry = entries[nextIndex];
-        String host = nextEntry.getLocalhost();
-        int port = nextEntry.getPort();
-
-//        System.out.println("Routing package from node " + overlayNodeSendsData.getSrcID() + ", to node " + overlayNodeSendsData.getDestID() + ", next node is node " + nextEntry.getNodeID());
-
-        try {
-            TCPConnection connection = ConnectionFactory.getInstance().getConnection(host, port, messagingNode);
-
-//            System.out.println("Sending packages to node " + nextEntry.getNodeID());
-            connection.sendData(overlayNodeSendsData.getBytes());
-
-//            System.out.println("OVERLAY: from"+overlayNodeSendsData.getDestID()+)
-            messagingNode.updateTracker(overlayNodeSendsData);
-
-        } catch (IOException e) {
-            System.out.println("Failed to connect to node " + nextEntry.getNodeID());
-            System.out.println(e.getMessage());
-        }
-    }
-
-    private void reportTaskFinished() throws IOException {
+    public void reportTaskFinished() throws IOException {
 
         String ip = messagingNode.getLocalhost().getHostAddress();
         int port = messagingNode.getLocalPort();
