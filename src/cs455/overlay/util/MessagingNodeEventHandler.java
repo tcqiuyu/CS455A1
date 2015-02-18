@@ -129,6 +129,14 @@ public class MessagingNodeEventHandler {
             OverlayNodeSendsData dataToSend = new OverlayNodeSendsData(randomDestID, messagingNode.getNodeID());
             connection.sendData(dataToSend.getBytes());
         }
+
+        try {
+            System.out.println("Sent all " + packageNum + " packages. Reports to registry...");
+            reportTaskFinished();
+            System.out.println("Reports sent.");
+        } catch (IOException e) {
+            System.out.println("Failed to send task finish report to registry..." + e.getMessage());
+        }
     }
 
     private int getNextRoutingIndex(int destID, RoutingEntry[] entries) {
@@ -156,6 +164,7 @@ public class MessagingNodeEventHandler {
 
         if (messagingNode.getNodeID() == overlayNodeSendsData.getDestID()) {
             System.out.println("Received package from Node " + overlayNodeSendsData.getSrcID());
+
             return;
         }
 
@@ -178,6 +187,17 @@ public class MessagingNodeEventHandler {
             System.out.println("Failed to connect to node " + nextEntry.getNodeID());
             System.out.println(e.getMessage());
         }
+    }
+
+    private void reportTaskFinished() throws IOException {
+
+        String ip = messagingNode.getLocalhost().getHostAddress();
+        int port = messagingNode.getLocalPort();
+        int nodeID = messagingNode.getNodeID();
+        OverlayNodeReportsTaskFinished taskFinishedReport = new OverlayNodeReportsTaskFinished(ip, port, nodeID);
+        TCPConnection connection = ConnectionFactory.getInstance().getConnection(messagingNode.getRegistryHost(), messagingNode.getRegistryPort(), messagingNode);
+        connection.sendData(taskFinishedReport.getBytes());
 
     }
+
 }

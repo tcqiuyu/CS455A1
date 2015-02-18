@@ -112,7 +112,13 @@ public class RegistryEventHandler {
     }
 
     public void handleTaskFinishReports(Event event) {
+        OverlayNodeReportsTaskFinished taskFinishedReport = (OverlayNodeReportsTaskFinished) event;
 
+        String ip = taskFinishedReport.getIp();
+        int port = taskFinishedReport.getPort();
+        int nodeID = taskFinishedReport.getNodeID();
+
+        System.out.println("Node " + nodeID + ", from IP: " + ip + ", port: " + port + ", reports its task finished!");
     }
 
     public void handleTrafficSummaryReports(Event event) {

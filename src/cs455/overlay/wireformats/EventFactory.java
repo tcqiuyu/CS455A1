@@ -50,7 +50,7 @@ public class EventFactory {
                 case Protocol.OVERLAY_NODE_SENDS_DATA:
                     return new OverlayNodeSendsData(data);
                 case Protocol.OVERLAY_NODE_REPORTS_TASK_FINISHED:
-                    return new OverlayNodeReportsTaskFinished();
+                    return new OverlayNodeReportsTaskFinished(data);
 
                 case Protocol.REGISTRY_REQUESTS_TRAFFIC_SUMMARY:
                     return new RegistryRequestsTrafficSummary();
