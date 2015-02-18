@@ -7,6 +7,7 @@ import cs455.overlay.transport.TCPConnection;
 import cs455.overlay.wireformats.*;
 
 import java.io.IOException;
+import java.util.Collection;
 
 /**
  * Created by Qiu on 2/15/2015.}
@@ -128,11 +129,29 @@ public class RegistryEventHandler {
         }
     }
 
-    private void sendTrafficRequest(){
+    private void sendTrafficRequest() {
         RegistryRequestsTrafficSummary trafficRequest = new RegistryRequestsTrafficSummary();
+        Collection<TCPConnection> connections = ConnectionFactory.getInstance().getAllConnection();
+        for (TCPConnection connection : connections) {
+            try {
+                connection.sendData(trafficRequest.getBytes());
+            } catch (IOException e) {
+                System.out.println("Failed to send traffic request.");
+            }
+        }
     }
-    public void handleTrafficSummaryReports(Event event) {
 
+    public synchronized void handleTrafficSummaryReports(Event event) {
+        OverlayNodeReportsTrafficSummary trafficSummary = (OverlayNodeReportsTrafficSummary) event;
+
+        synchronized (StatisticsCollectorAndDisplay.getInstance()) {
+            StatisticsCollectorAndDisplay.getInstance().addTrafficSummary(trafficSummary);
+            if (StatisticsCollectorAndDisplay.getInstance().getTrafficSummarySize() == registry.getIdArray().size()) {
+                StatisticsCollectorAndDisplay.getInstance().printTrafficSummary();
+                StatisticsCollectorAndDisplay.getInstance().reset();
+                registry.resetCount();
+            }
+        }
     }
 
     public void handleSetupStatusReports(Event event) {

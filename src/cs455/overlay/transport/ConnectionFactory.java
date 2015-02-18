@@ -4,8 +4,10 @@ import cs455.overlay.node.Node;
 
 import java.io.IOException;
 import java.net.Socket;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by Qiu on 2/15/2015.
@@ -49,7 +51,9 @@ public class ConnectionFactory {
         return connection;
     }
 
-
+    public Collection<TCPConnection> getAllConnection() {
+        return connectionMap.values();
+    }
     private String getKey(String host, int port) {
         return host + ":" + port;
     }

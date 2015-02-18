@@ -46,11 +46,30 @@ public class MessagingNodeEventHandler {
     }
 
 
-    public void handleTrafficSummaryRequest(Event event) {
+    public void handleTrafficSummaryRequest() {
         sendTrafficSummary();
     }
 
     private void sendTrafficSummary() {
+        int nodeID = messagingNode.getNodeID();
+        int packetSent = StatisticsCollectorAndDisplay.getInstance().getSendTracker();
+        int packetRelay = StatisticsCollectorAndDisplay.getInstance().getRelayTracker();
+        long sentSum = StatisticsCollectorAndDisplay.getInstance().getSendSummation();
+        int packetReceived = StatisticsCollectorAndDisplay.getInstance().getReceiveTracker();
+        long receiveSum = StatisticsCollectorAndDisplay.getInstance().getReceiveSummation();
+        OverlayNodeReportsTrafficSummary trafficSummary = new OverlayNodeReportsTrafficSummary(nodeID, packetSent, packetRelay, sentSum, packetReceived, receiveSum);
+        System.out.println("Sending traffic summary to registry.");
+        try {
+            TCPConnection connection = ConnectionFactory.getInstance().getConnection(messagingNode.getRegistryHost(), messagingNode.getRegistryPort(), messagingNode);
+            StatisticsCollectorAndDisplay.getInstance().printCountersAndDiagnostics();
+            connection.sendData(trafficSummary.getBytes());
+            StatisticsCollectorAndDisplay.getInstance().reset();
+            System.out.println("Success! Reset the counter.");
+
+        } catch (IOException e) {
+            System.out.println("Failed to send traffic summary to registry.");
+            System.out.println(e.getMessage());
+        }
 
     }
 
@@ -213,6 +232,7 @@ public class MessagingNodeEventHandler {
         OverlayNodeReportsTaskFinished taskFinishedReport = new OverlayNodeReportsTaskFinished(ip, port, nodeID);
         TCPConnection connection = ConnectionFactory.getInstance().getConnection(messagingNode.getRegistryHost(), messagingNode.getRegistryPort(), messagingNode);
         connection.sendData(taskFinishedReport.getBytes());
+        StatisticsCollectorAndDisplay.getInstance().printCountersAndDiagnostics();
 
     }
 

@@ -58,6 +58,7 @@ public class InteractiveCommandHandler {
         registry.setupOverlay(size);
         System.out.println("Successful setup overlay!");
         Map<Integer, OverlayNode> nodeMap = registry.getNodeMap();
+        System.out.println("Sending manifest to messaging nodes.");
         for (Map.Entry<Integer, OverlayNode> integerOverlayNodeEntry : nodeMap.entrySet()) {
             OverlayNode currentNode = integerOverlayNodeEntry.getValue();
             String host = currentNode.getHost();
@@ -65,7 +66,6 @@ public class InteractiveCommandHandler {
             int id = currentNode.getNodeID();
             try {
                 TCPConnection connection = ConnectionFactory.getInstance().getConnection(host, port, registry);
-                System.out.println("Broadcast manifest report.");
                 RegistrySendNodeManifest sendManifest = new RegistrySendNodeManifest(registry.getRoutingTableArray()[id], registry.getIdArray());
                 connection.sendData(sendManifest.getBytes());
             } catch (IOException e) {

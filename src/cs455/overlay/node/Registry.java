@@ -70,6 +70,10 @@ public class Registry implements Node {
         }
     }
 
+    public synchronized void resetCount() {
+        finishedNodeCount = 0;
+    }
+
     public RoutingEntry[] getNodeEntries() {
         return routingEntries;
     }
@@ -129,7 +133,6 @@ public class Registry implements Node {
             return -1;
         }
     }
-
 
     public synchronized void addToNodeMap(int id, OverlayNode overlayNode) {
         nodeMap.put(id, overlayNode);

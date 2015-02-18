@@ -152,7 +152,7 @@ public class MessagingNode implements Node {
                 eventHandler.handleTaskInitRequest(e);
                 break;
             case Protocol.REGISTRY_REQUESTS_TRAFFIC_SUMMARY:
-                eventHandler.handleTrafficSummaryRequest(e);
+                eventHandler.handleTrafficSummaryRequest();
                 break;
             case Protocol.OVERLAY_NODE_SENDS_DATA:
                 eventHandler.handleNodeSendData(e);

@@ -25,8 +25,7 @@ public class RoutingTable {
             try {
                 int temp = idArray.get((index + (int) Math.pow(2, i)) % idArray.size());
                 routingTable[i] = entries[temp];
-            } catch (IndexOutOfBoundsException e) {
-                continue;
+            } catch (IndexOutOfBoundsException ignored) {
             }
         }
     }
