@@ -25,6 +25,8 @@ public class Registry implements Node {
     private ArrayList<Integer> idArray = new ArrayList<Integer>();
     private RoutingTable[] routingTableArray = new RoutingTable[MAX_REGISTER_NUMBER];
 
+    private int finishedNodeCount = 0;
+
     public Registry() {
         // TODO Auto-generated constructor stub
     }
@@ -68,7 +70,7 @@ public class Registry implements Node {
         }
     }
 
-    public RoutingEntry[] getRoutingEntries() {
+    public RoutingEntry[] getNodeEntries() {
         return routingEntries;
     }
 
@@ -185,7 +187,7 @@ public class Registry implements Node {
 
         switch (commandHandler.getCommandValue(cmd)) {
             case InteractiveCommandHandler.listMessagingNodes:
-
+                commandHandler.listMessagingNodes();
                 break;
             case InteractiveCommandHandler.setupOverlay:
                 if (commandArray.length == 1) {
@@ -195,6 +197,7 @@ public class Registry implements Node {
                 }
                 break;
             case InteractiveCommandHandler.listRoutingTables:
+                commandHandler.listRoutingTables();
                 break;
             case InteractiveCommandHandler.start:
                 commandHandler.start(para);
@@ -251,5 +254,13 @@ public class Registry implements Node {
 
     public Map<Integer, OverlayNode> getNodeMap() {
         return nodeMap;
+    }
+
+    public synchronized int getFinishedNodeCount() {
+        return finishedNodeCount;
+    }
+
+    public synchronized void increFinishedNodeCount() {
+        this.finishedNodeCount++;
     }
 }

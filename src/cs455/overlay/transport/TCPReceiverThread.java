@@ -7,7 +7,6 @@ import cs455.overlay.wireformats.EventFactory;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.net.Socket;
-import java.net.SocketException;
 
 public class TCPReceiverThread extends Thread {
 
@@ -31,12 +30,9 @@ public class TCPReceiverThread extends Thread {
                 din.readFully(data, 0, dataLength);
                 Event event = EventFactory.getInstance().getEvent(data);
                 node.onEvent(event);
-            } catch (SocketException se) {
-                //TODO: degregister node if disconnect...
-                System.out.println(se.getMessage());
-                break;
             } catch (IOException ioe) {
-                System.out.println(ioe.getMessage());
+//                System.out.println(ioe.getMessage());
+                System.out.println("Disconnected.");
                 break;
             }
 

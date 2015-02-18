@@ -55,7 +55,7 @@ public class EventFactory {
                 case Protocol.REGISTRY_REQUESTS_TRAFFIC_SUMMARY:
                     return new RegistryRequestsTrafficSummary();
                 case Protocol.OVERLAY_NODE_REPORTS_TRAFFIC_SUMMARY:
-                    return new OverlayNodeReportsTrafficeSummary();
+                    return new OverlayNodeReportsTrafficSummary(data);
 
                 default:
                     return null;

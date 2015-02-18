@@ -47,6 +47,10 @@ public class MessagingNodeEventHandler {
 
 
     public void handleTrafficSummaryRequest(Event event) {
+        sendTrafficSummary();
+    }
+
+    private void sendTrafficSummary() {
 
     }
 
@@ -103,29 +107,33 @@ public class MessagingNodeEventHandler {
 
     private void initTask(int packageNum) throws IOException {
 
-        System.out.println("Initiating task...");
+        System.out.println("Processing task...");
+
+//        System.out.println("Random destination is node " + randomDestID);
+
+//        System.out.println("Sending packages to node " + nextEntry.getNodeID());
+
         ArrayList<Integer> idArray = messagingNode.getIdArray();
-        Random ran = new Random();
-
-        int randomDestID = idArray.get(ran.nextInt(idArray.size()));
-
-        //won't target itself
-        while (randomDestID == messagingNode.getNodeID()) {
-            randomDestID = idArray.get(ran.nextInt(idArray.size()));
-        }
-
-        System.out.println("Random destination is node " + randomDestID);
         RoutingEntry[] entries = messagingNode.getRoutingTable().getTable();
-        int nextIndex = getNextRoutingIndex(randomDestID, entries);
-        RoutingEntry nextEntry = entries[nextIndex];
 
-        String host = nextEntry.getLocalhost();
-        int port = nextEntry.getPort();
-
-        TCPConnection connection = ConnectionFactory.getInstance().getConnection(host, port, messagingNode);
-
-        System.out.println("Sending packages to node " + nextEntry.getNodeID());
         for (int i = 0; i < packageNum; i++) {
+            Random ran = new Random();
+
+            int randomDestID = idArray.get(ran.nextInt(idArray.size()));
+
+            //won't target itself
+            while (randomDestID == messagingNode.getNodeID()) {
+                randomDestID = idArray.get(ran.nextInt(idArray.size()));
+            }
+
+            int nextIndex = getNextRoutingIndex(randomDestID, entries);
+            RoutingEntry nextEntry = entries[nextIndex];
+
+            String host = nextEntry.getLocalhost();
+            int port = nextEntry.getPort();
+
+            TCPConnection connection = ConnectionFactory.getInstance().getConnection(host, port, messagingNode);
+
             OverlayNodeSendsData dataToSend = new OverlayNodeSendsData(randomDestID, messagingNode.getNodeID());
             connection.sendData(dataToSend.getBytes());
         }

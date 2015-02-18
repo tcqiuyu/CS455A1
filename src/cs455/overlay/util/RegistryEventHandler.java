@@ -118,9 +118,19 @@ public class RegistryEventHandler {
         int port = taskFinishedReport.getPort();
         int nodeID = taskFinishedReport.getNodeID();
 
+        registry.increFinishedNodeCount();
         System.out.println("Node " + nodeID + ", from IP: " + ip + ", port: " + port + ", reports its task finished!");
+        System.out.println(registry.getFinishedNodeCount() + " nodes finished their tasks.");
+
+        if (registry.getFinishedNodeCount() == registry.getIdArray().size()) {
+            System.out.println("All " + registry.getFinishedNodeCount() + " finished their tasks. Retrieving traffic summary...");
+            sendTrafficRequest();
+        }
     }
 
+    private void sendTrafficRequest(){
+        RegistryRequestsTrafficSummary trafficRequest = new RegistryRequestsTrafficSummary();
+    }
     public void handleTrafficSummaryReports(Event event) {
 
     }

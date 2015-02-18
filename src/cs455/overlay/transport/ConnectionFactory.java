@@ -30,22 +30,22 @@ public class ConnectionFactory {
 
     public TCPConnection getConnection(String host, int port, Node node) throws
             IOException {
-        System.out.println("\nLooking for connection...");
+//        System.out.println("\nLooking for connection...");
         TCPConnection connection = null;
         String key = getKey(host, port);
         if (connectionMap.containsKey(key)) {
             connection = connectionMap.get(key);
-            System.out.println("Found connection... Host: " + host + ", on port: " + port);
+//            System.out.println("Found connection... Host: " + host + ", on port: " + port);
         } else {
             System.out.println("Cannot find connection.");
             System.out.println("Initiating connection to host: " + host + ", port: " + port);
             Socket socket = new Socket(host, port);
             connection = new TCPConnection(node, socket);
             registerConnection(host, port, connection);
-            System.out.println("Initiate connection successful.");
+//            System.out.println("Initiate connection successful.");
         }
-        System.out.println("    Current Number of connection: " + connectionMap.size());
-        System.out.println();
+//        System.out.println("    Current Number of connection: " + connectionMap.size());
+//        System.out.println();
         return connection;
     }
 

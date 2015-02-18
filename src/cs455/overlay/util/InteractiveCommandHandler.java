@@ -5,6 +5,7 @@ import cs455.overlay.node.Node;
 import cs455.overlay.node.OverlayNode;
 import cs455.overlay.node.Registry;
 import cs455.overlay.routing.RoutingEntry;
+import cs455.overlay.routing.RoutingTable;
 import cs455.overlay.transport.ConnectionFactory;
 import cs455.overlay.transport.TCPConnection;
 import cs455.overlay.wireformats.OverlayNodeSendsDeregistration;
@@ -39,6 +40,17 @@ public class InteractiveCommandHandler {
 
     public void listMessagingNodes() {
         Registry registry = (Registry) node;
+        ArrayList<Integer> idArray = registry.getIdArray();
+        RoutingEntry[] entries = registry.getNodeEntries();
+        System.out.println("The information about all the messaging nodes are: ");
+        for (int i = 0; i < idArray.size(); i++) {
+            RoutingEntry entry = entries[idArray.get(i)];
+            int nodeID = entry.getNodeID();
+            String host = entry.getLocalhost();
+            int port = entry.getPort();
+            System.out.println("Node ID " + nodeID + ", host: " + host + ", port: " + port);
+        }
+        System.out.println();
     }
 
     public void setupOverlay(int size) {
@@ -63,13 +75,30 @@ public class InteractiveCommandHandler {
         }
     }
 
-    public void listRoutingTable() {
+    public void listRoutingTables() {
         Registry registry = (Registry) node;
+        ArrayList<Integer> idArray = registry.getIdArray();
+        RoutingTable[] routingTables = registry.getRoutingTableArray();
+        for (int i = 0; i < idArray.size(); i++) {
+            int id = idArray.get(i);
+            RoutingTable routingTable = routingTables[id];
+            RoutingEntry[] routingEntries = routingTable.getTable();
+            System.out.println("\n\nRouting table for node: " + id);
+
+            for (int j = 0; j < routingEntries.length; j++) {
+                System.out.println();
+                System.out.println("Distance: " + (int) Math.pow(2, j));
+                System.out.println("Node ID: " + routingEntries[j].getNodeID());
+                System.out.println("Host: " + routingEntries[j].getLocalhost());
+                System.out.println("Port: " + routingEntries[j].getPort());
+            }
+            System.out.println("\n");
+        }
     }
 
     public void start(int msgNumber) {
         Registry registry = (Registry) node;
-        RoutingEntry[] entries = registry.getRoutingEntries();
+        RoutingEntry[] entries = registry.getNodeEntries();
         ArrayList<Integer> idArray = registry.getIdArray();
         RegistryRequestsTaskInitiate taskInitReq = new RegistryRequestsTaskInitiate(msgNumber);
         for (int i = 0; i < idArray.size(); i++) {
