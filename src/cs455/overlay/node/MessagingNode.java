@@ -1,6 +1,5 @@
 package cs455.overlay.node;
 
-import cs455.overlay.routing.RoutingEntry;
 import cs455.overlay.routing.RoutingTable;
 import cs455.overlay.transport.ConnectionFactory;
 import cs455.overlay.transport.TCPConnection;
@@ -16,11 +15,9 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.Queue;
 import java.util.Scanner;
 
-public class MessagingNode extends Thread implements Node {
+public class MessagingNode implements Node {
 
     private int localPort;
     private String regHost;
@@ -34,18 +31,12 @@ public class MessagingNode extends Thread implements Node {
     private RoutingTable routingTable;
     private ArrayList<Integer> idArray;
 
-//    private AtomicInteger sendTracker = new AtomicInteger(0);
-//    private AtomicInteger receiveTracker = new AtomicInteger(0);
-//    private AtomicInteger relayTracker = new AtomicInteger(0);
-//    private AtomicLong sendSummation = new AtomicLong(0);
-//    private AtomicLong receiveSummation = new AtomicLong(0);
-
     private int sendTracker;
     private int receiveTracker;
     private int relayTracker;
     private long sendSummation;
     private long receiveSummation;
-    private Queue<OverlayNodeSendsData> relayQueue = new LinkedList<OverlayNodeSendsData>();
+
 
     public MessagingNode(String regHost, int regPort) {
         this.regHost = regHost;
@@ -66,7 +57,7 @@ public class MessagingNode extends Thread implements Node {
         MessagingNode messagingNode = null;
         try {
             messagingNode = new MessagingNode(regHost, regPort);
-            messagingNode.init();
+            messagingNode.start();
         } catch (IOException e) {
             System.out.println("Failed to setup messaging Node: " + e.getMessage());
         }
@@ -76,7 +67,6 @@ public class MessagingNode extends Thread implements Node {
         System.out.println("Messaging Node is registering to registry.");
         try {
             messagingNode.register();
-            messagingNode.start();
         } catch (IOException ioe) {
             System.out.println("Failed to register to registry:\n" + ioe.getMessage());
             return;
@@ -136,31 +126,7 @@ public class MessagingNode extends Thread implements Node {
         connection.sendData(marshalledBytes);
     }
 
-    public void run() {
-        while (true) {
-            OverlayNodeSendsData relayMsg;
-            synchronized (relayQueue) {
-                relayMsg = relayQueue.poll();
-            }
-            if (relayMsg != null) {
-                try {
-                    byte[] bytesToSend = relayMsg.getBytes();
-                    int next = eventHandler.getNextRoutingIndex(relayMsg.getDestID(), routingTable.getTable());
-                    RoutingEntry entry = routingTable.getTable()[next];
-                    String host = entry.getLocalhost();
-                    int port = entry.getPort();
-                    TCPConnection connection = ConnectionFactory.getInstance().getConnection(host, port, this);
-//                    relayTracker.addAndGet(1);
-                    relayTracker++;
-                    connection.sendData(bytesToSend);
-                } catch (IOException e) {
-                    System.out.println(e.getMessage());
-                }
-            }
-        }
-    }
-
-    private void init() throws IOException {
+    private void start() throws IOException {
         tcpServerThread = new TCPServerThread(this);
         localPort = tcpServerThread.getLocalPort();
         commandHandler = new InteractiveCommandHandler(this);
@@ -195,12 +161,7 @@ public class MessagingNode extends Thread implements Node {
                 eventHandler.handleTrafficSummaryRequest(e);
                 break;
             case Protocol.OVERLAY_NODE_SENDS_DATA:
-                OverlayNodeSendsData overlayNodeSendsData = (OverlayNodeSendsData) e;
-                try {
-                    handleNodeSendsData(overlayNodeSendsData);
-                } catch (IOException e1) {
-                    e1.printStackTrace();
-                }
+                eventHandler.handleNodeSendData(e);
                 break;
             default:
                 System.out.println("Unrecognized message type");
@@ -246,25 +207,15 @@ public class MessagingNode extends Thread implements Node {
         System.out.println("Sum values received: " + receiveSummation);
     }
 
-    public synchronized void handleNodeSendsData(OverlayNodeSendsData overlayNodeSendsData) throws IOException {
+    public synchronized void updateTracker(OverlayNodeSendsData overlayNodeSendsData) {
         if (overlayNodeSendsData.getDestID() == this.getNodeID()) {//receive data
-//            receiveTracker.addAndGet(1);
-//            receiveSummation.addAndGet(overlayNodeSendsData.getPayload());
             receiveTracker++;
             receiveSummation = receiveSummation + overlayNodeSendsData.getPayload();
-            if (receiveTracker == idArray.size()) {
-                eventHandler.reportTaskFinished();
-            }
-        } else if (overlayNodeSendsData.getSrcID() == this.getNodeID()) {
-//            sendTracker.addAndGet(1);
-//            sendSummation.addAndGet(overlayNodeSendsData.getPayload());
+        } else if (overlayNodeSendsData.getSrcID() == this.getNodeID()) {//send data
             sendTracker++;
             sendSummation = sendSummation + overlayNodeSendsData.getPayload();
-        } else {
-            synchronized (relayQueue) {
-                relayQueue.add(overlayNodeSendsData);
-            }
+        } else {//relay data
+            relayTracker++;
         }
     }
 }
-
