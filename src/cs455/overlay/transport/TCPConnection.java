@@ -20,7 +20,7 @@ public class TCPConnection {
         receiver.start();
     }
 
-    public void sendData(byte[] data) throws IOException {
+    public synchronized void sendData(byte[] data) throws IOException {
         sender.sendData(data);
     }
 
