@@ -1,7 +1,6 @@
 package cs455.overlay.wireformats;
 
 import java.io.*;
-import java.util.Arrays;
 import java.util.Random;
 
 public class OverlayNodeSendsData implements Event {
@@ -97,7 +96,7 @@ public class OverlayNodeSendsData implements Event {
         dout.flush();
 
         marshalledBytes = baOutputStream.toByteArray();
-        System.out.println(Arrays.toString(marshalledBytes));
+//        System.out.println(Arrays.toString(marshalledBytes));
         dout.close();
         return marshalledBytes;
     }

@@ -137,16 +137,16 @@ public class MessagingNodeEventHandler {
 
             OverlayNodeSendsData dataToSend = new OverlayNodeSendsData(randomDestID, messagingNode.getNodeID());
             connection.sendData(dataToSend.getBytes());
-            messagingNode.updateTracker(dataToSend);
+            messagingNode.updateTracker(dataToSend);//update packetSent & sentSum
         }
 
-//        try {
-//            System.out.println("Sent all " + packageNum + " packages. Reports to registry...");
-//            reportTaskFinished();
-//            System.out.println("Reports sent.");
-//        } catch (IOException e) {
-//            System.out.println("Failed to send task finish report to registry..." + e.getMessage());
-//        }
+        try {
+            System.out.println("Sent all " + packageNum + " packages. Reports to registry...");
+            reportTaskFinished();
+            System.out.println("Reports sent.");
+        } catch (IOException e) {
+            System.out.println("Failed to send task finish report to registry..." + e.getMessage());
+        }
     }
 
     private int getNextRoutingIndex(int destID, RoutingEntry[] entries) {
@@ -172,9 +172,10 @@ public class MessagingNodeEventHandler {
 
         overlayNodeSendsData.updateTrace(messagingNode.getNodeID());
 
+        //current node is dest node
         if (messagingNode.getNodeID() == overlayNodeSendsData.getDestID()) {
 //            System.out.println("Received package from Node " + overlayNodeSendsData.getSrcID());
-            messagingNode.updateTracker(overlayNodeSendsData);
+            messagingNode.updateTracker(overlayNodeSendsData);//update receive packet, and receive sum
 
             return;
         }

@@ -6,6 +6,7 @@ import cs455.overlay.transport.TCPConnection;
 import cs455.overlay.transport.TCPServerThread;
 import cs455.overlay.util.InteractiveCommandHandler;
 import cs455.overlay.util.MessagingNodeEventHandler;
+import cs455.overlay.util.StatisticsCollectorAndDisplay;
 import cs455.overlay.wireformats.Event;
 import cs455.overlay.wireformats.OverlayNodeSendsData;
 import cs455.overlay.wireformats.OverlayNodeSendsRegistration;
@@ -30,13 +31,6 @@ public class MessagingNode implements Node {
 
     private RoutingTable routingTable;
     private ArrayList<Integer> idArray;
-
-    private int sendTracker;
-    private int receiveTracker;
-    private int relayTracker;
-    private long sendSummation;
-    private long receiveSummation;
-
 
     public MessagingNode(String regHost, int regPort) {
         this.regHost = regHost;
@@ -187,7 +181,7 @@ public class MessagingNode implements Node {
     private void handleCommand(String command) {
         switch (commandHandler.getCommandValue(command)) {
             case InteractiveCommandHandler.printCountersAndDiagnostics:
-                commandHandler.printCountersAndDiagnostics();
+                StatisticsCollectorAndDisplay.getInstance().printCountersAndDiagnostics();
                 break;
             case InteractiveCommandHandler.exitOverlay:
                 commandHandler.exitOverlay();
@@ -199,23 +193,15 @@ public class MessagingNode implements Node {
 
     }
 
-    public void printCountersAndDiagnostics() {
-        System.out.println("Packets sent: " + sendTracker);
-        System.out.println("Packets received: " + receiveTracker);
-        System.out.println("Packets relayed: " + relayTracker);
-        System.out.println("Sum values sent: " + sendSummation);
-        System.out.println("Sum values received: " + receiveSummation);
-    }
-
-    public synchronized void updateTracker(OverlayNodeSendsData overlayNodeSendsData) {
+    public void updateTracker(OverlayNodeSendsData overlayNodeSendsData) {
         if (overlayNodeSendsData.getDestID() == this.getNodeID()) {//receive data
-            receiveTracker++;
-            receiveSummation = receiveSummation + overlayNodeSendsData.getPayload();
+            StatisticsCollectorAndDisplay.getInstance().increReceiveTracker();
+            StatisticsCollectorAndDisplay.getInstance().increReceiveSummation(overlayNodeSendsData.getPayload());
         } else if (overlayNodeSendsData.getSrcID() == this.getNodeID()) {//send data
-            sendTracker++;
-            sendSummation = sendSummation + overlayNodeSendsData.getPayload();
+            StatisticsCollectorAndDisplay.getInstance().increSendTracker();
+            StatisticsCollectorAndDisplay.getInstance().increSendSummationBy(overlayNodeSendsData.getPayload());
         } else {//relay data
-            relayTracker++;
+            StatisticsCollectorAndDisplay.getInstance().increRelayTracker();
         }
     }
 }
