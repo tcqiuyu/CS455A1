@@ -20,11 +20,13 @@ public class Registry implements Node {
     private TCPServerThread tcpServer;
     private InteractiveCommandHandler commandHandler;
     private RegistryEventHandler eventHandler;
+
     private int port;
 
     private Map<Integer, OverlayNode> nodeMap = new HashMap<Integer, OverlayNode>();
-    private int[] idArray;
-    private RoutingTable[] routingTableArray;
+    private ArrayList<Integer> idArray = new ArrayList<Integer>();
+    private RoutingTable[] routingTableArray = new RoutingTable[MAX_REGISTER_NUMBER];
+
     public Registry() {
         // TODO Auto-generated constructor stub
     }
@@ -48,8 +50,7 @@ public class Registry implements Node {
             return;
         }
 
-
-        //setup registry
+        // setup registry
         Registry registry = null;
         try {
             registry = new Registry(port);
@@ -60,13 +61,17 @@ public class Registry implements Node {
             System.out.println("Registry failed to start: " + ioe.getMessage());
         }
 
-        //get command line input
+        // get command line input
         Scanner scanner = new Scanner(System.in);
 
         while (scanner.hasNextLine()) {
             String command = scanner.nextLine();
             registry.handleCommand(command);
         }
+    }
+
+    public RoutingTable[] getRoutingTableArray() {
+        return routingTableArray;
     }
 
     @Override
@@ -107,7 +112,8 @@ public class Registry implements Node {
         return id;
     }
 
-    public synchronized int registerNode(int id, OverlayNode overlayNode) throws UnknownHostException {
+    public synchronized int registerNode(int id, OverlayNode overlayNode)
+            throws UnknownHostException {
         if (!nodeMap.containsValue(overlayNode)) {
 
             addToNodeMap(id, overlayNode);
@@ -119,6 +125,7 @@ public class Registry implements Node {
             return -1;
         }
     }
+
 
     public synchronized void addToNodeMap(int id, OverlayNode overlayNode) {
         nodeMap.put(id, overlayNode);
@@ -133,17 +140,24 @@ public class Registry implements Node {
 
             if (storedIP.equals(srcIP) && storedPort == srcPort) {
                 nodeMap.remove(nodeID);
-                System.out.println("Deregistration successful. Node with ID " + nodeID + " is deregistered.");
+                System.out.println("Deregistration successful. Node with ID "
+                        + nodeID + " is deregistered.");
                 return 1;
             } else {
-                System.out.println("Deregistration failed. Node information provided is not consistent with the one " +
-                        "stored in registry.");
+                System.out
+                        .println("Deregistration failed. Node information provided is not consistent with the one "
+                                + "stored in registry.");
                 return -1;
             }
         } else {
-            System.out.println("Deregistration failed. Node is not in overlay!");
+            System.out
+                    .println("Deregistration failed. Node is not in overlay!");
             return -2;
         }
+    }
+
+    public int getPort() {
+        return port;
     }
 
     public int getNodeAmount() {
@@ -162,21 +176,23 @@ public class Registry implements Node {
         String[] commandArray = command.split(" ");
         String cmd = commandArray[0];
 
-        int para;
+        int para = -1;
         if (commandArray.length == 2) {
             para = Integer.parseInt(commandArray[1]);
         }
-
 
         switch (commandHandler.getCommandValue(cmd)) {
             case InteractiveCommandHandler.listMessagingNodes:
 
                 break;
             case InteractiveCommandHandler.setupOverlay:
-
+                if (commandArray.length == 1) {
+                    commandHandler.setupOverlay(3);
+                } else if (para > 0) {
+                    commandHandler.setupOverlay(para);
+                }
                 break;
             case InteractiveCommandHandler.listRoutingTables:
-
                 break;
             case InteractiveCommandHandler.start:
 
@@ -188,10 +204,11 @@ public class Registry implements Node {
 
     }
 
-    public int[] getIdArray() {
+    public ArrayList getIdArray() {
         return idArray;
     }
 
+    //initiate general entries for each node, node with id i is stored in index i
     private void initOverlay() {
         Iterator<Integer> keyIter = nodeMap.keySet().iterator();
 
@@ -200,21 +217,37 @@ public class Registry implements Node {
         for (int i = 0; i < MAX_REGISTER_NUMBER; i++) {
             while (keyIter.hasNext()) {
                 int nextID = keyIter.next();
-                idArray[i] = nextID;
                 routingEntries[nextID] = new RoutingEntry(nodeMap.get(nextID));
             }
         }
 
     }
 
-
-    public void setupOverlay(int routingTableSize) {
-        initOverlay();
+    private void setupIDArray() {
+        int temp = 0;
         for (int id = 0; id < MAX_REGISTER_NUMBER; id++) {
             if (routingEntries[id] != null) {
-                RoutingTable routingTable = new RoutingTable(routingTableSize, routingEntries, id);
+                idArray.add(temp, id);
+                temp++;
+            }
+        }
+    }
+
+    //build routing table for each messaging node, table for node i is stored in index i
+    public void setupOverlay(int routingTableSize) {
+        initOverlay();
+        setupIDArray();
+        for (int id = 0; id < MAX_REGISTER_NUMBER; id++) {
+            if (routingEntries[id] != null) {
+
+                RoutingTable routingTable = new RoutingTable(routingTableSize,
+                        routingEntries, idArray, id);
                 routingTableArray[id] = routingTable;
             }
         }
+    }
+
+    public Map<Integer, OverlayNode> getNodeMap() {
+        return nodeMap;
     }
 }

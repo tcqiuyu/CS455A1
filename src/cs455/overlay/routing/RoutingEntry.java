@@ -6,14 +6,27 @@ public class RoutingEntry {
 
     private int nodeID;
     private String localhost;
-    private int localhostLength;
+
+    public int getPort() {
+        return port;
+    }
+
+    public String getLocalhost() {
+        return localhost;
+    }
+
+    public int getNodeID() {
+        return nodeID;
+    }
+
     private int port;
 
     public RoutingEntry(OverlayNode overlayNode) {
         this.nodeID = overlayNode.getNodeID();
         this.localhost = overlayNode.getHost();
-        this.localhostLength = localhost.length();
         this.port = overlayNode.getPort();
     }
+
+
 
 }

@@ -1,5 +1,6 @@
 package cs455.overlay.node;
 
+import cs455.overlay.routing.RoutingTable;
 import cs455.overlay.transport.ConnectionFactory;
 import cs455.overlay.transport.TCPConnection;
 import cs455.overlay.transport.TCPServerThread;
@@ -12,6 +13,7 @@ import cs455.overlay.wireformats.Protocol;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.Scanner;
 
 public class MessagingNode implements Node {
@@ -24,6 +26,27 @@ public class MessagingNode implements Node {
     private TCPServerThread tcpServerThread;
     private InteractiveCommandHandler commandHandler;
     private MessagingNodeEventHandler eventHandler;
+
+    private RoutingTable routingTable;
+    private ArrayList<Integer> idArray;
+
+
+    public RoutingTable getRoutingTable() {
+        return routingTable;
+    }
+
+    public void setRoutingTable(RoutingTable routingTable) {
+        this.routingTable = routingTable;
+    }
+
+    public ArrayList<Integer> getIdArray() {
+        return idArray;
+    }
+
+    public void setIdArray(ArrayList<Integer> idArray) {
+        this.idArray = idArray;
+    }
+
     public MessagingNode(String regHost, int regPort) {
         this.regHost = regHost;
         this.regPort = regPort;
@@ -44,7 +67,6 @@ public class MessagingNode implements Node {
         try {
             messagingNode = new MessagingNode(regHost, regPort);
             messagingNode.start();
-            System.out.println("Messaging Node is up on host: " + regHost + ", port number: " + regPort);
         } catch (IOException e) {
             System.out.println("Failed to setup messaging Node: " + e.getMessage());
         }
@@ -85,17 +107,14 @@ public class MessagingNode implements Node {
 
 //        int localHostLength = getLocalhost().toString().length();
         int localHostLength = getLocalhost().getHostAddress().length();
-        System.out.println("Creating registration request with localhost " + getLocalhost() + " and localport " +
-                getLocalPort());
+        System.out.println("Creating registration request.");
         OverlayNodeSendsRegistration registrationRequest = new OverlayNodeSendsRegistration(localHostLength,
                 getLocalhost().getHostAddress(), //toString(), WRONG!
                 localPort);
         byte[] marshalledBytes = registrationRequest.getBytes();
 
-        System.out.println("Getting connection...");
+        System.out.println("Connecting to registry...");
         TCPConnection connection = ConnectionFactory.getInstance().getConnection(regHost, regPort, this);
-
-//        localPort = connection.getSocket().getLocalPort();
         System.out.println("Sending registration request...");
         connection.sendData(marshalledBytes);
     }
@@ -103,11 +122,10 @@ public class MessagingNode implements Node {
     private void start() throws IOException {
         tcpServerThread = new TCPServerThread(this);
         localPort = tcpServerThread.getLocalPort();
-
-        System.out.println("Local port is " + localPort);
         commandHandler = new InteractiveCommandHandler(this);
         eventHandler = new MessagingNodeEventHandler(this);
         tcpServerThread.start();
+        System.out.println("Messaging Node is up on: " + InetAddress.getLocalHost() + ", listening to port number: " + localPort);
     }
 
     @Override
@@ -169,4 +187,7 @@ public class MessagingNode implements Node {
 
     }
 
+    public void initRoutingConnection() {
+
+    }
 }

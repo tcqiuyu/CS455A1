@@ -2,10 +2,12 @@ package cs455.overlay.util;
 
 import cs455.overlay.node.MessagingNode;
 import cs455.overlay.node.Node;
+import cs455.overlay.node.OverlayNode;
 import cs455.overlay.node.Registry;
 import cs455.overlay.transport.ConnectionFactory;
 import cs455.overlay.transport.TCPConnection;
 import cs455.overlay.wireformats.OverlayNodeSendsDeregistration;
+import cs455.overlay.wireformats.RegistrySendNodeManifest;
 
 import java.io.IOException;
 import java.net.UnknownHostException;
@@ -38,6 +40,25 @@ public class InteractiveCommandHandler {
 
     public void setupOverlay(int size) {
         Registry registry = (Registry) node;
+        registry.setupOverlay(size);
+        System.out.println("Successful setup overlay!");
+        Map<Integer, OverlayNode> nodeMap = registry.getNodeMap();
+        for (Map.Entry<Integer, OverlayNode> integerOverlayNodeEntry : nodeMap.entrySet()) {
+            OverlayNode currentNode = integerOverlayNodeEntry.getValue();
+            String host = currentNode.getHost();
+            int port = currentNode.getPort();
+            int id = currentNode.getNodeID();
+            try {
+                System.out.println("Looking for connection on host: " + host);
+                TCPConnection connection = ConnectionFactory.getInstance().getConnection(host, port, registry);
+                System.out.println("Broadcast manifest report.");
+                RegistrySendNodeManifest sendManifest = new RegistrySendNodeManifest(registry.getRoutingTableArray()[id], registry.getIdArray());
+                connection.sendData(sendManifest.getBytes());
+            } catch (IOException e) {
+                System.out.println("Failed to send manifest to messaging node: ID " + id + ", host " + currentNode.getHost());
+                System.out.println(e.getMessage());
+            }
+        }
     }
 
     public void listRoutingTable() {
@@ -62,8 +83,8 @@ public class InteractiveCommandHandler {
             host = msgNode.getLocalhost().getHostAddress();
             int hostLength = host.length();
             OverlayNodeSendsDeregistration deregRequest = new OverlayNodeSendsDeregistration(hostLength, host, port, nodeID);
-            System.out.println("Deregistering current node with IP: " + host + ", Port: " + port + ", node ID: " + nodeID);
-            TCPConnection connection = ConnectionFactory.getInstance().getConnection(msgNode.getRegistryHost(), msgNode.getRegistryPort(), msgNode);
+            System.out.println("Deregistering current node with IP: " + host + ", node ID: " + nodeID);
+            TCPConnection connection = ConnectionFactory.getInstance().getConnection(host, port, msgNode);
             connection.sendData(deregRequest.getBytes());
         } catch (UnknownHostException e) {
             System.out.println("Failed to get local host: " + e.getMessage());

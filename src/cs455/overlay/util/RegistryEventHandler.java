@@ -9,8 +9,9 @@ import cs455.overlay.wireformats.*;
 import java.io.IOException;
 
 /**
- * Created by Qiu on 2/15/2015.
+ * Created by Qiu on 2/15/2015.}
  */
+
 public class RegistryEventHandler {
 
     private Registry registry;
@@ -22,11 +23,11 @@ public class RegistryEventHandler {
     public void handleRegRequest(Event event) throws IOException {
         OverlayNodeSendsRegistration regRequest = (OverlayNodeSendsRegistration) event;
 
-        String srcIP = regRequest.getSrcIP();
-        int srcPort = regRequest.getSrcPort();
+        String mNodeIP = regRequest.getSrcIP();
+        int mNodePort = regRequest.getSrcPort();
 
-        System.out.println("Receive registration request from host: " + srcIP + " port: " + srcPort);
-        OverlayNode overlayNode = new OverlayNode(srcIP, srcPort);
+        System.out.println("Receive registration request from host: " + mNodeIP);
+        OverlayNode overlayNode = new OverlayNode(mNodeIP, mNodePort);
 
         int nodeID = registry.getNextID();
 //        System.out.println("Allocate ID " + nodeID + " to incoming messaging node");
@@ -45,8 +46,8 @@ public class RegistryEventHandler {
 
 
         RegistryReportsRegistrationStatus regReport = new RegistryReportsRegistrationStatus(regResult, infoLength, info);
-        System.out.println("Getting connection from incoming node..." + "IP: " + srcIP + ", Port: " + srcPort);
-        TCPConnection connection = ConnectionFactory.getInstance().getConnection(srcIP, srcPort, registry);
+        System.out.println("Getting connection from incoming node..." + "IP: " + mNodeIP);
+        TCPConnection connection = ConnectionFactory.getInstance().getConnection(mNodeIP, mNodePort, registry);
         System.out.println("Sending registration report...");
         try {
             connection.sendData(regReport.getBytes());
@@ -65,7 +66,7 @@ public class RegistryEventHandler {
         int srcPort = deregRequest.getPort();
         int nodeID = deregRequest.getNodeID();
 
-        System.out.println("Receiving deregistration request with IP: " + srcIP + ", Port: " + ", node ID: " + nodeID);
+        System.out.println("Receiving deregistration request with IP: " + ", node ID: " + nodeID);
 
         String info;
         int infoLength;

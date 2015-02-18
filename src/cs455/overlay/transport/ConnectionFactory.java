@@ -23,7 +23,7 @@ public class ConnectionFactory {
         return instance;
     }
 
-    public synchronized void registerConnection(String host, int port, TCPConnection connection) {
+    private synchronized void registerConnection(String host, int port, TCPConnection connection) {
         String key = getKey(host, port);
         connectionMap.put(key, connection);
     }
@@ -31,23 +31,22 @@ public class ConnectionFactory {
     public TCPConnection getConnection(String host, int port, Node node) throws
             IOException {
         System.out.println("Looking for connection...");
-        String key = host + ":" + port;
-        TCPConnection connection;
+        TCPConnection connection = null;
+        String key = getKey(host, port);
         if (connectionMap.containsKey(key)) {
             connection = connectionMap.get(key);
-            System.out.println("Find connection... Host: " + host + ", Port: " + port);
+            System.out.println("Found connection... Host: " + host + "on node ID: " + port);
         } else {
-            System.out.println("Cannot find connection. Create one...Host: " + host + ", Port: " + port);
-
-            Socket s = new Socket(host, port);
-            connection = new TCPConnection(node, s);
-
+            System.out.println("Cannot find connection.");
+            System.out.println("Initiating connection to host: " + host + ", port: " + port);
+            Socket socket = new Socket(host, port);
+            connection = new TCPConnection(node, socket);
             registerConnection(host, port, connection);
-
-
+            System.out.println("Initiate connection successful.");
         }
         return connection;
     }
+
 
     private String getKey(String host, int port) {
         return host + ":" + port;

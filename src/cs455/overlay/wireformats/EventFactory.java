@@ -41,7 +41,7 @@ public class EventFactory {
 				return new RegistryReportsDeregistrationStatus(data);
 				
 			case Protocol.REGISTRY_SENDS_NODE_MANIFEST:
-				return new RegistrySendNodeManifest();
+				return new RegistrySendNodeManifest(data);
 			case Protocol.NODE_REPORTS_OVERLAY_SETUP_STATUS:
 				return new NodeReportsOverlaySetupStatus();
 				
