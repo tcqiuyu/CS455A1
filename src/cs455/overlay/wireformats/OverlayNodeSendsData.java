@@ -1,6 +1,7 @@
 package cs455.overlay.wireformats;
 
 import java.io.*;
+import java.util.Arrays;
 import java.util.Random;
 
 public class OverlayNodeSendsData implements Event {
@@ -36,6 +37,7 @@ public class OverlayNodeSendsData implements Event {
             for (int i = 0; i < traceLength; i++) {
                 trace[i] = din.readInt();
             }
+            this.trace = trace;
         } else {
             System.out.println("Message type does not match!");
         }
@@ -77,7 +79,7 @@ public class OverlayNodeSendsData implements Event {
 
     @Override
     public byte[] getBytes() throws IOException {
-        byte[] marshalledBytes = null;
+        byte[] marshalledBytes;
 
         ByteArrayOutputStream baOutputStream = new ByteArrayOutputStream();
         DataOutputStream dout = new DataOutputStream(new BufferedOutputStream(baOutputStream));
@@ -88,13 +90,14 @@ public class OverlayNodeSendsData implements Event {
         dout.writeInt(payload);
 
         dout.writeInt(trace.length);
-        for (int i = 0; i < trace.length; i++) {
-            dout.writeInt(trace[i]);
+        for (int aTrace : trace) {
+            dout.writeInt(aTrace);
         }
 
         dout.flush();
 
         marshalledBytes = baOutputStream.toByteArray();
+        System.out.println(Arrays.toString(marshalledBytes));
         dout.close();
         return marshalledBytes;
     }

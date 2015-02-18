@@ -55,7 +55,6 @@ public class OverlayNodeReportsTaskFinished implements Event {
 
     @Override
     public byte[] getBytes() throws IOException {
-        // TODO Auto-generated method stub
         byte[] marshalledBytes = null;
 
         ByteArrayOutputStream baOutputStream = new ByteArrayOutputStream();

@@ -120,6 +120,7 @@ public class InteractiveCommandHandler {
 
     public void printCountersAndDiagnostics() {
         MessagingNode msgNode = (MessagingNode) node;
+        msgNode.printCountersAndDiagnostics();
     }
 
     public void exitOverlay() {

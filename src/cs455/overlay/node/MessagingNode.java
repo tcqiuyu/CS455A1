@@ -7,6 +7,7 @@ import cs455.overlay.transport.TCPServerThread;
 import cs455.overlay.util.InteractiveCommandHandler;
 import cs455.overlay.util.MessagingNodeEventHandler;
 import cs455.overlay.wireformats.Event;
+import cs455.overlay.wireformats.OverlayNodeSendsData;
 import cs455.overlay.wireformats.OverlayNodeSendsRegistration;
 import cs455.overlay.wireformats.Protocol;
 
@@ -29,6 +30,12 @@ public class MessagingNode implements Node {
 
     private RoutingTable routingTable;
     private ArrayList<Integer> idArray;
+
+    private int sendTracker;
+    private int receiveTracker;
+    private int relayTracker;
+    private long sendSummation;
+    private long receiveSummation;
 
 
     public MessagingNode(String regHost, int regPort) {
@@ -192,4 +199,23 @@ public class MessagingNode implements Node {
 
     }
 
+    public void printCountersAndDiagnostics() {
+        System.out.println("Packets sent: " + sendTracker);
+        System.out.println("Packets received: " + receiveTracker);
+        System.out.println("Packets relayed: " + relayTracker);
+        System.out.println("Sum values sent: " + sendSummation);
+        System.out.println("Sum values received: " + receiveSummation);
+    }
+
+    public synchronized void updateTracker(OverlayNodeSendsData overlayNodeSendsData) {
+        if (overlayNodeSendsData.getDestID() == this.getNodeID()) {//receive data
+            receiveTracker++;
+            receiveSummation = receiveSummation + overlayNodeSendsData.getPayload();
+        } else if (overlayNodeSendsData.getSrcID() == this.getNodeID()) {//send data
+            sendTracker++;
+            sendSummation = sendSummation + overlayNodeSendsData.getPayload();
+        } else {//relay data
+            relayTracker++;
+        }
+    }
 }
